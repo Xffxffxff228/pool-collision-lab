@@ -1,0 +1,1590 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0b0e">
+  <title>Нецентральные удары тел · бильярдная физика</title>
+  <style>
+:root {
+      color-scheme: dark;
+      --ink: #f4f1e9;
+      --muted: #a9b1aa;
+      --dim: #77817b;
+      --panel: #171e1b;
+      --panel-light: #202925;
+      --line: rgba(237, 239, 228, .11);
+      --felt: #075847;
+      --felt-light: #0c6a56;
+      --orange: #f04b2c;
+      --orange-soft: #ff7952;
+      --blue: #31c6ff;
+      --green: #4ad3a4;
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: #0b100f; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 77% 4%, rgba(14, 92, 72, .22), transparent 34rem),
+        radial-gradient(ellipse at 7% 42%, rgba(240, 75, 44, .08), transparent 30rem),
+        linear-gradient(145deg, #111715, #0b100f 62%);
+      min-height: 100vh;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .app { width: min(1540px, calc(100% - 48px)); margin: 0 auto; padding: 24px 0 32px; }
+    .topline { display:flex; align-items:center; justify-content:space-between; gap:20px; padding: 0 4px 22px; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:11px; font-size:12px; letter-spacing:.17em; font-weight:850; }
+    .brand-mark { display:grid; place-items:center; width:34px; height:34px; border:1px solid rgba(255,255,255,.26); border-radius:50%; font-family:Impact,"Arial Narrow",sans-serif; letter-spacing:-.04em; font-size:14px; color:var(--orange-soft); box-shadow:inset 0 0 14px rgba(240,75,44,.12); }
+    .brand i { color:#88948d; font-style:normal; }
+    .top-meta { display:flex; align-items:center; gap:9px; color:#aab4ad; font-size:10px; font-weight:750; letter-spacing:.15em; text-transform:uppercase; }
+    .live-dot { width:7px; height:7px; border-radius:50%; background:#59d6a9; box-shadow:0 0 12px rgba(89,214,169,.7); }
+    .hero { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(250px,.85fr); align-items:end; gap:30px; padding:36px 4px 30px; }
+    .eyebrow { display:flex; align-items:center; gap:10px; margin:0 0 12px; color:#b9c3bb; font-size:11px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
+    .eyebrow span { display:grid; place-items:center; width:25px; height:25px; border-radius:50%; background:var(--orange); color:white; font-size:11px; letter-spacing:0; }
+    h1 { margin:0; font-family:Impact,"Arial Narrow","Segoe UI Condensed",sans-serif; font-size:clamp(46px,6.6vw,96px); font-weight:900; letter-spacing:-.025em; line-height:.83; text-transform:uppercase; }
+    h1 em { display:block; margin-top:8px; color:var(--orange); font-style:normal; }
+    .hero-aside { max-width:440px; justify-self:end; padding:0 2px 3px 24px; border-left:2px solid var(--orange); }
+    .hero-aside p { margin:0 0 13px; max-width:410px; color:#e1e4dc; font-size:15px; line-height:1.55; }
+    .hero-aside strong { color:#fff; }
+    .hero-chips { display:flex; flex-wrap:wrap; gap:7px; }
+    .chip { padding:6px 9px; border:1px solid var(--line); border-radius:999px; color:#aeb8b0; font-size:10px; font-weight:750; letter-spacing:.08em; text-transform:uppercase; }
+    .workbench { display:grid; grid-template-columns:300px minmax(0,1fr); align-items:stretch; gap:16px; }
+    .controls, .stage, .readout-card, .principles { border:1px solid var(--line); background:linear-gradient(145deg,rgba(31,41,36,.96),rgba(19,26,23,.98)); box-shadow:0 18px 50px rgba(0,0,0,.19); }
+    .controls { border-radius:var(--radius); padding:20px 18px 17px; }
+    .panel-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:15px; }
+    .panel-heading h2 { margin:0; font-size:11px; font-weight:850; letter-spacing:.16em; text-transform:uppercase; }
+    .mode-code { border:1px solid rgba(240,75,44,.4); border-radius:7px; padding:5px 7px; color:#ff8a67; font-size:10px; font-weight:850; letter-spacing:.09em; }
+    .mode-list { display:grid; gap:8px; margin-bottom:21px; }
+    .mode-choice { position:relative; display:flex; align-items:center; gap:11px; width:100%; min-height:58px; padding:10px 12px; border:1px solid rgba(255,255,255,.09); border-radius:11px; background:rgba(255,255,255,.025); text-align:left; cursor:pointer; transition:background .18s,border-color .18s,transform .18s; }
+    .mode-choice:hover { background:rgba(255,255,255,.055); transform:translateY(-1px); }
+    .mode-choice[aria-pressed="true"] { border-color:rgba(240,75,44,.74); background:linear-gradient(100deg,rgba(240,75,44,.14),rgba(240,75,44,.035)); box-shadow:inset 3px 0 0 var(--orange); }
+    .mode-num { display:grid; place-items:center; flex:0 0 30px; width:30px; height:30px; border-radius:50%; background:#303a35; color:#b2bcb4; font-size:10px; font-weight:850; }
+    .mode-choice[aria-pressed="true"] .mode-num { background:var(--orange); color:white; }
+    .mode-text { display:grid; gap:3px; }
+    .mode-text strong { font-size:13px; }
+    .mode-text small { color:#9aa69e; font-size:10px; }
+    .mode-icon { margin-left:auto; color:#96a29a; font-size:16px; }
+    .mode-choice[aria-pressed="true"] .mode-icon { color:var(--orange-soft); }
+    .presets { margin:-8px 0 15px; }
+    .preset-heading { margin-bottom:7px; color:#7f8c83; font-size:8px; font-weight:850; letter-spacing:.14em; }
+    .preset-list { display:flex; flex-wrap:wrap; gap:6px; }
+    .preset { min-height:28px; padding:0 8px; border:1px solid rgba(255,255,255,.1); border-radius:7px; background:rgba(255,255,255,.035); color:#c4cdc4; font-size:9px; font-weight:700; cursor:pointer; }
+    .preset:hover { border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.08); }
+    .preset[aria-pressed="true"] { border-color:rgba(240,75,44,.65); background:rgba(240,75,44,.12); color:#ffd1c1; }
+    .preset.break-preset { border-color:rgba(240,75,44,.4); color:#ffae94; }
+    .preset.break-preset[aria-pressed="true"] { border-color:var(--orange); background:rgba(240,75,44,.2); color:#fff0e8; box-shadow:0 0 16px rgba(240,75,44,.12); }
+    .preset:focus-visible, .canvas-zoom button:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+    .control-group { padding:13px 0; border-top:1px solid var(--line); }
+    .control-title { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:9px; color:#e8e9e1; font-size:12px; font-weight:700; }
+    output { color:#fff; font-variant-numeric:tabular-nums; font-size:12px; font-weight:800; }
+    .unit { margin-left:3px; color:#99a49c; font-size:10px; font-weight:600; }
+    input[type="range"] { display:block; width:100%; height:20px; margin:0; appearance:none; background:transparent; cursor:pointer; }
+    input[type="range"]::-webkit-slider-runnable-track { height:4px; border-radius:10px; background:linear-gradient(90deg,var(--orange),#d4d8ce 50%,#59665e); }
+    input[type="range"]::-moz-range-track { height:4px; border-radius:10px; background:linear-gradient(90deg,var(--orange),#d4d8ce 50%,#59665e); }
+    input[type="range"]::-webkit-slider-thumb { width:15px; height:15px; margin-top:-5.5px; appearance:none; border:2px solid #fff7ef; border-radius:50%; background:var(--orange); box-shadow:0 1px 8px rgba(0,0,0,.45); }
+    input[type="range"]::-moz-range-thumb { width:12px; height:12px; border:2px solid #fff7ef; border-radius:50%; background:var(--orange); box-shadow:0 1px 8px rgba(0,0,0,.45); }
+    input[type="range"]:focus-visible { outline:2px solid rgba(49,198,255,.8); outline-offset:3px; border-radius:6px; }
+    .range-scale { display:flex; justify-content:space-between; margin-top:-2px; color:#79867e; font-size:9px; font-variant-numeric:tabular-nums; }
+    .mass-row { display:grid; grid-template-columns:24px minmax(0,1fr) 43px; align-items:center; gap:7px; margin:8px 0 11px; }
+    .ball-index { display:grid; place-items:center; width:22px; height:22px; border-radius:50%; font-size:10px; font-weight:900; }
+    .ball-index.one { border:1px solid rgba(255,255,255,.75); background:radial-gradient(circle at 30% 25%,#fffef1,#cfc4a8); color:#29312b; }
+    .ball-index.two { border:1px solid rgba(255,174,145,.8); background:radial-gradient(circle at 30% 25%,#ff755c,#8f100c 76%); color:#fff; }
+    .mass-row input[type="range"]::-webkit-slider-runnable-track { background:linear-gradient(90deg,#adb9aa,#60746a); }
+    .mass-row input[type="range"]::-moz-range-track { background:linear-gradient(90deg,#adb9aa,#60746a); }
+    .mass-row input[type="range"]::-webkit-slider-thumb { background:#d7ded1; }
+    .mass-row input[type="range"]::-moz-range-thumb { background:#d7ded1; }
+    .mass-value { text-align:right; color:#e7e9df; font-size:11px; font-variant-numeric:tabular-nums; }
+    .switch-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 0 2px; color:#d2d8d0; font-size:11px; }
+    .switches { display:flex; gap:10px; flex-wrap:wrap; }
+    .check { display:flex; align-items:center; gap:6px; color:#a9b4ac; font-size:10px; cursor:pointer; user-select:none; }
+    .check input { accent-color:var(--orange); width:13px; height:13px; margin:0; }
+    .controls-note { margin:13px 0 0; padding:10px 10px 10px 12px; border-left:2px solid rgba(240,75,44,.72); background:rgba(255,255,255,.025); color:#aeb8af; font-size:10px; line-height:1.45; }
+    .controls-note strong { color:#f3eee4; }
+    .stage { min-width:0; overflow:hidden; border-radius:var(--radius); }
+    .stage-head { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:15px 18px 13px; }
+    .stage-title { display:flex; align-items:center; gap:10px; }
+    .stage-title strong { font-size:12px; letter-spacing:.13em; }
+    .stage-title small { color:#8d9991; font-size:10px; }
+    .stage-counter { display:flex; align-items:baseline; gap:6px; padding:5px 10px; border:1px solid rgba(240,75,44,.36); border-radius:8px; background:rgba(240,75,44,.09); color:#ffb29a; white-space:nowrap; }
+    .stage-counter[hidden] { display:none; }
+    .stage-counter span { font-size:8px; font-weight:850; letter-spacing:.13em; }
+    .stage-counter strong { color:#fff0e8; font-size:16px; font-variant-numeric:tabular-nums; }
+    .stage-counter small { color:#aeb8af; font-size:9px; }
+    .stage-state { display:flex; align-items:center; gap:7px; color:#a9b5ac; font-size:10px; font-weight:750; letter-spacing:.1em; text-transform:uppercase; }
+    .break-mode .stage { border-color:rgba(240,75,44,.3); }
+    .break-mode .velocity-panel { display:none; }
+    .state-light { width:7px; height:7px; border-radius:50%; background:#63d2a8; box-shadow:0 0 10px rgba(99,210,168,.45); }
+    .state-light.hit { background:var(--orange-soft); box-shadow:0 0 10px rgba(255,121,82,.55); }
+    .canvas-wrap { position:relative; width:100%; padding:0 10px; }
+    canvas { display:block; width:100%; height:auto; aspect-ratio:1200/650; border-radius:9px; touch-action:none; cursor:crosshair; }
+    canvas.aim-target { cursor:grab; }
+    canvas.dragging-aim { cursor:grabbing; }
+    .canvas-badge { position:absolute; top:14px; left:24px; padding:7px 9px; border:1px solid rgba(255,255,255,.17); border-radius:7px; background:rgba(8,26,22,.57); color:rgba(255,255,255,.85); font-size:9px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; backdrop-filter:blur(7px); pointer-events:none; }
+    .break-mode .canvas-physics { display:none; }
+    .canvas-scale { position:absolute; top:14px; right:24px; display:flex; align-items:center; gap:7px; padding:7px 9px; border:1px solid rgba(255,255,255,.17); border-radius:7px; background:rgba(8,26,22,.57); color:rgba(255,255,255,.77); font-size:9px; font-weight:750; letter-spacing:.08em; backdrop-filter:blur(7px); pointer-events:none; }
+    .scale-mark { width:22px; height:2px; background:var(--orange-soft); box-shadow:0 0 7px var(--orange-soft); }
+    .compare-tag { position:absolute; top:44px; left:24px; padding:6px 8px; border:1px dashed rgba(197,236,121,.65); border-radius:7px; background:rgba(8,26,22,.72); color:#d8f3a2; font-size:8px; font-weight:850; letter-spacing:.1em; pointer-events:none; }
+    .compare-tag[hidden], .compare-legend[hidden] { display:none; }
+    .canvas-zoom { position:absolute; right:20px; bottom:12px; display:flex; gap:5px; }
+    .canvas-zoom button { display:grid; place-items:center; width:34px; height:34px; border:1px solid rgba(255,255,255,.2); border-radius:9px; background:rgba(8,26,22,.76); color:#f7f3e9; font-size:17px; font-weight:750; cursor:pointer; backdrop-filter:blur(8px); }
+    .canvas-zoom button:hover { background:rgba(29,62,51,.94); }
+    .stage-bar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:13px 18px 16px; }
+    .stage-tools { display:flex; align-items:center; gap:8px; }
+    .action { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:38px; padding:0 14px; border:1px solid transparent; border-radius:9px; background:var(--orange); color:#fffaf5; font-size:11px; font-weight:850; letter-spacing:.06em; cursor:pointer; transition:filter .16s,transform .16s,background .16s; }
+    .action:hover { filter:brightness(1.11); transform:translateY(-1px); }
+    .action:active { transform:translateY(0); }
+    .action:focus-visible, .mode-choice:focus-visible { outline:2px solid var(--blue); outline-offset:3px; }
+    .action.secondary { border-color:var(--line); background:#27312c; color:#dde2d8; }
+    .action .play-glyph { font-size:13px; }
+    .legend { display:flex; flex-wrap:wrap; align-items:center; gap:13px; color:#9fa9a0; font-size:10px; }
+    .legend-item { display:flex; align-items:center; gap:6px; }
+    .legend-line { width:21px; height:2px; border-radius:2px; background:var(--blue); box-shadow:0 0 7px rgba(49,198,255,.48); }
+    .legend-line.red { background:var(--orange-soft); box-shadow:0 0 7px rgba(255,121,82,.4); }
+    .legend-line.white { height:0; border-top:1px dashed rgba(255,255,255,.72); background:transparent; box-shadow:none; }
+    .time-display { color:#8f9a91; font-size:10px; font-variant-numeric:tabular-nums; }
+    .readouts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:14px; }
+    .readout-card { display:flex; align-items:center; gap:13px; min-height:82px; padding:15px 17px; border-radius:14px; }
+    .readout-icon { display:grid; place-items:center; flex:0 0 37px; width:37px; height:37px; border:1px solid rgba(255,255,255,.11); border-radius:11px; color:var(--blue); font-size:16px; font-weight:800; }
+    .readout-card:nth-child(2) .readout-icon { color:#ffd174; }
+    .readout-card:nth-child(3) .readout-icon { color:var(--orange-soft); }
+    .readout-label { margin:0 0 4px; color:#9ca79f; font-size:9px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .readout-value { margin:0; color:#f5f3eb; font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; }
+    .readout-value small { color:#aab4ac; font-size:10px; font-weight:600; }
+    .velocity-panel { margin-top:12px; padding:17px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(145deg,rgba(31,41,36,.96),rgba(19,26,23,.98)); box-shadow:0 18px 50px rgba(0,0,0,.16); }
+    .velocity-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    .velocity-kicker { margin:0 0 4px; color:#8d9991; font-size:8px; font-weight:850; letter-spacing:.15em; }
+    .velocity-heading h2 { margin:0; font-size:14px; }
+    .impact-badge { flex:0 0 auto; padding:6px 8px; border:1px solid rgba(49,198,255,.28); border-radius:7px; color:#8edfff; font-size:8px; font-weight:850; letter-spacing:.1em; }
+    .impact-badge.hit { border-color:rgba(240,75,44,.45); color:#ff9778; }
+    .velocity-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .impact-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; margin-bottom:9px; }
+    .impact-metric { min-width:0; padding:8px 10px; border:1px solid rgba(255,255,255,.07); border-radius:8px; background:rgba(255,255,255,.025); }
+    .impact-metric span { display:block; margin-bottom:3px; color:#89968e; font-size:8px; font-weight:750; letter-spacing:.07em; text-transform:uppercase; }
+    .impact-metric strong { color:#e8eee5; font-size:12px; font-variant-numeric:tabular-nums; }
+    .velocity-card { display:flex; align-items:flex-start; gap:10px; min-width:0; padding:11px 12px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.025); }
+    .velocity-main { flex:1; min-width:0; }
+    .velocity-card p { margin:0 0 4px; color:#d4dbd2; font-size:11px; font-weight:750; }
+    .velocity-card p small { margin-left:4px; color:#8d9991; font-size:9px; font-weight:500; }
+    .velocity-card strong { display:block; color:#f5f3eb; font-size:13px; font-variant-numeric:tabular-nums; }
+    .velocity-components { display:block; margin-top:4px; color:#9ea9a0; font-size:9px; font-variant-numeric:tabular-nums; }
+    .velocity-phases { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .velocity-phase { min-width:0; padding:7px 8px; border:1px solid rgba(255,255,255,.07); border-radius:8px; background:rgba(255,255,255,.025); }
+    .velocity-phase>span { display:block; margin-bottom:4px; color:#849188; font-size:7px; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
+    .velocity-phase strong { font-size:12px; }
+    .velocity-phase small { display:block; margin-top:3px; color:#a4afa6; font-size:8px; line-height:1.35; font-variant-numeric:tabular-nums; }
+    .angle-note { margin:8px 1px 0; color:#849188; font-size:8px; line-height:1.4; }
+    .action:disabled { opacity:.45; cursor:not-allowed; transform:none; filter:none; }
+    .compare-line { height:0; border-top:2px dashed #c5ec79; background:transparent; box-shadow:none; }
+    .lower { display:grid; grid-template-columns:1.12fr .88fr; gap:12px; margin-top:12px; }
+    .principles { display:grid; grid-template-columns:repeat(3,1fr); gap:0; overflow:hidden; border-radius:14px; }
+    .principle { padding:14px 15px; border-right:1px solid var(--line); }
+    .principle:last-child { border-right:0; }
+    .principle-number { display:block; margin-bottom:6px; color:var(--orange); font-family:Impact,"Arial Narrow",sans-serif; font-size:18px; }
+    .principle p { margin:0; color:#b9c2ba; font-size:10px; line-height:1.45; }
+    .formula { padding:15px 17px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.025); }
+    .formula-label { margin:0 0 8px; color:#89968e; font-size:9px; font-weight:850; letter-spacing:.14em; text-transform:uppercase; }
+    .formula-main { margin:0; color:#e4e8de; font-family:Georgia,"Times New Roman",serif; font-size:15px; }
+    .formula-note { margin:7px 0 0; color:#9ca79f; font-size:10px; line-height:1.45; }
+    .footer { display:flex; justify-content:space-between; gap:20px; margin-top:18px; padding:14px 4px 0; border-top:1px solid var(--line); color:#68736c; font-size:9px; line-height:1.5; }
+    .footer span:last-child { text-align:right; }
+    @media (max-width: 1050px) {
+      .workbench { grid-template-columns:270px minmax(0,1fr); gap:12px; }
+      .controls { padding:17px 14px; }
+      .hero { padding-top:29px; }
+      .readout-card { padding:13px; gap:10px; }
+    }
+    @media (max-width: 820px) {
+      .app { width:min(100% - 28px, 700px); padding-top:15px; }
+      .hero { grid-template-columns:1fr; gap:18px; padding:27px 3px 22px; }
+      .hero-aside { justify-self:start; max-width:none; }
+      .workbench { grid-template-columns:1fr; }
+      .controls { order:2; }
+      .stage { order:1; }
+      .control-settings { display:grid; grid-template-columns:1fr 1fr; column-gap:20px; }
+      .control-settings .control-group:first-child { border-top:0; }
+      .readouts { gap:8px; }
+      .readout-card { align-items:flex-start; flex-direction:column; min-height:100px; }
+      .lower { grid-template-columns:1fr; }
+    }
+    @media (max-width: 560px) {
+      body { padding-bottom:calc(76px + env(safe-area-inset-bottom)); }
+      .app { width:calc(100% - 20px); padding-top:10px; }
+      .topline { padding:0 2px 14px; }
+      .top-meta { max-width:126px; justify-content:flex-end; text-align:right; font-size:8px; line-height:1.4; }
+      .brand { font-size:10px; }
+      .brand-mark { width:30px; height:30px; }
+      .hero { padding-top:23px; }
+      h1 { font-size:clamp(42px,12vw,66px); }
+      .hero-aside { padding-left:14px; }
+      .hero-aside p { font-size:13px; }
+      .stage { overflow:visible; padding-bottom:62px; }
+      .stage-head { padding:12px 11px; }
+      .stage-head { flex-wrap:wrap; gap:8px; }
+      .stage-title { display:grid; gap:4px; }
+      .stage-state { font-size:8px; }
+      .stage-counter { margin-left:auto; padding:4px 7px; }
+      .stage-counter strong { font-size:14px; }
+      .canvas-wrap { padding:0 5px; }
+      .canvas-badge { top:8px; left:12px; padding:5px 6px; font-size:7px; }
+      .canvas-scale { top:8px; right:12px; padding:5px 6px; font-size:7px; }
+      .canvas-zoom { top:42px; right:10px; bottom:auto; gap:4px; }
+      .canvas-zoom button { width:38px; height:38px; border-radius:11px; font-size:19px; }
+      .stage-bar {
+        position:fixed;
+        z-index:30;
+        left:50%;
+        bottom:calc(8px + env(safe-area-inset-bottom));
+        width:min(calc(100% - 20px), 680px);
+        flex-wrap:nowrap;
+        align-items:center;
+        gap:8px;
+        margin:0;
+        padding:7px;
+        transform:translateX(-50%);
+        border:1px solid rgba(255,255,255,.15);
+        border-radius:13px;
+        background:rgba(22,30,26,.96);
+        box-shadow:0 8px 28px rgba(0,0,0,.48);
+        backdrop-filter:blur(14px);
+      }
+      .stage-tools { width:auto; flex:1; gap:5px; }
+      .stage-tools .action { min-height:44px; flex:1; padding:0 6px; font-size:9px; letter-spacing:.02em; white-space:nowrap; }
+      .stage-tools .step-action { flex:0 0 48px; padding:0 3px; gap:3px; }
+      .legend { display:none; }
+      .time-display { min-width:57px; margin-left:0; text-align:center; white-space:nowrap; font-size:9px; }
+      .readouts { grid-template-columns:1fr 1fr; }
+      .readout-card { min-height:83px; padding:11px; }
+      .readout-card:last-child { grid-column:1/-1; min-height:72px; flex-direction:row; align-items:center; }
+      .readout-icon { flex-basis:31px; width:31px; height:31px; }
+      .readout-value { font-size:15px; }
+      .velocity-panel { padding:13px; }
+      .velocity-grid { grid-template-columns:1fr; }
+      .velocity-card { min-height:60px; }
+      .impact-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .velocity-heading h2 { font-size:13px; }
+      .preset-list { flex-wrap:nowrap; overflow-x:auto; padding:1px 1px 6px; scrollbar-width:thin; }
+      .preset { min-height:36px; flex:0 0 auto; padding:0 10px; }
+      .control-settings { grid-template-columns:1fr; }
+      .mode-choice { min-height:64px; }
+      input[type="range"] { height:28px; }
+      input[type="range"]::-webkit-slider-thumb { width:19px; height:19px; margin-top:-7.5px; }
+      input[type="range"]::-moz-range-thumb { width:16px; height:16px; }
+      .check { min-height:34px; padding-right:5px; }
+      .principles { grid-template-columns:1fr; }
+      .principle { display:flex; align-items:center; gap:11px; border-right:0; border-bottom:1px solid var(--line); padding:10px 13px; }
+      .principle:last-child { border-bottom:0; }
+      .principle-number { margin:0; min-width:18px; }
+      .footer { flex-direction:column; gap:7px; }
+      .footer span:last-child { text-align:left; }
+    }
+
+    /* Editorial billiards study: charcoal, paper, cobalt and vermilion. */
+    :root {
+      --ink:#f4f0e7;
+      --muted:#bbb8b0;
+      --dim:#85847f;
+      --panel:#111216;
+      --panel-light:#191a20;
+      --line:rgba(244,240,231,.2);
+      --orange:#f0442e;
+      --orange-soft:#ff6248;
+      --blue:#258fe8;
+      --green:#48cfa7;
+      --radius:2px;
+    }
+    html { background:#090a0d; }
+    body {
+      color:var(--ink);
+      background:
+        radial-gradient(ellipse at 50% -32%,rgba(255,255,255,.07),transparent 48rem),
+        linear-gradient(180deg,#101115 0%,#090a0d 70%);
+    }
+    .app { width:min(1480px,calc(100% - 64px)); padding-top:20px; }
+    .topline { border-bottom:1px solid #55545a; padding-bottom:17px; }
+    .brand { font-size:11px; letter-spacing:.19em; }
+    .brand-mark { width:36px; height:36px; border:0; border-radius:0; background:var(--ink); color:#101115; box-shadow:none; font-family:Impact,"Arial Narrow",sans-serif; }
+    .brand i { color:#85838a; }
+    .top-meta { color:#aaa8a3; }
+    .live-dot { background:#e94a38; box-shadow:0 0 10px rgba(233,74,56,.48); }
+    .hero {
+      grid-template-columns:minmax(0,1fr);
+      align-items:start;
+      gap:21px;
+      padding:42px 8px 28px;
+      border-bottom:1px solid #55545a;
+    }
+    .eyebrow { color:#a9a6a1; font-size:10px; letter-spacing:.2em; }
+    .eyebrow span { width:28px; height:28px; border-radius:0; background:var(--orange); font-family:Impact,"Arial Narrow",sans-serif; }
+    h1 {
+      font-family:Impact,"Arial Narrow","Segoe UI Condensed",sans-serif;
+      font-size:clamp(64px,7.3vw,106px);
+      letter-spacing:-.04em;
+      line-height:.79;
+      white-space:nowrap;
+    }
+    h1 em { display:inline; margin:0 0 0 .1em; color:var(--ink); }
+    .hero-aside { justify-self:center; width:min(100%,850px); max-width:none; padding:13px 0 0; border-left:0; border-top:1px solid #55545a; text-align:center; }
+    .equation-lockup { margin:0 0 14px; }
+    .equation-lockup>span { display:block; margin-bottom:5px; color:#929198; font-size:8px; font-weight:850; letter-spacing:.16em; }
+    .equation-lockup strong { display:block; color:#f4f0e7; font:italic 40px/1.15 Georgia,"Times New Roman",serif; white-space:nowrap; }
+    .equation-lockup sub { font-size:.58em; }
+    .equation-lockup i { font-style:italic; }
+    .hero-aside p { color:#c8c5bd; font-size:13px; line-height:1.55; }
+    .hero-aside strong { color:#fffdf7; }
+    .hero-chips { justify-content:center; gap:0 18px; }
+    .chip { padding:7px 0 0; border:0; border-top:1px solid #5c5b61; border-radius:0; color:#e0ddd5; font-size:8px; letter-spacing:.13em; }
+    .workbench { grid-template-columns:minmax(0,1fr); align-items:start; gap:12px; margin-top:14px; }
+    .stage { order:1; border:1px solid #525157; border-radius:0; background:#090a0d; box-shadow:none; }
+    .controls { order:2; display:grid; grid-template-columns:minmax(250px,.8fr) minmax(0,1.2fr); gap:0 22px; padding:18px 20px 15px; border:1px solid #45444a; border-radius:0; background:#111216; box-shadow:none; }
+    .panel-heading { grid-column:1/-1; margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid #45444a; }
+    .panel-heading h2 { font-family:Impact,"Arial Narrow",sans-serif; font-size:15px; letter-spacing:.12em; }
+    .mode-code { border-radius:0; border-color:#65636a; color:#f4f0e7; }
+    .mode-list { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:0 0 16px; }
+    .mode-choice {
+      --mode-accent:#258fe8;
+      display:flex;
+      min-height:86px;
+      padding:13px 15px;
+      gap:13px;
+      border:1px solid #55545a;
+      border-radius:0;
+      background:#15161b;
+    }
+    .mode-choice[data-mode="sticky"] { --mode-accent:#e33532; }
+    .mode-choice:hover { border-color:var(--mode-accent); background:#1b1c22; }
+    .mode-choice[data-mode="elastic"][aria-pressed="true"] { border-color:var(--mode-accent); background:linear-gradient(125deg,rgba(37,143,232,.27),rgba(21,22,27,.92) 74%); box-shadow:inset 0 4px 0 var(--mode-accent); }
+    .mode-choice[data-mode="sticky"][aria-pressed="true"] { border-color:var(--mode-accent); background:linear-gradient(125deg,rgba(227,53,50,.25),rgba(21,22,27,.92) 74%); box-shadow:inset 0 4px 0 var(--mode-accent); }
+    .mode-num { flex-basis:36px; width:36px; height:36px; border-radius:0; background:#2b2c33; font-family:Georgia,"Times New Roman",serif; font-size:14px; }
+    .mode-choice[data-mode="elastic"] .mode-num { color:#80c5ff; }
+    .mode-choice[data-mode="sticky"] .mode-num { color:#ff8277; }
+    .mode-choice[aria-pressed="true"] .mode-num { background:var(--mode-accent); color:white; }
+    .mode-text { gap:4px; }
+    .mode-text strong { font-family:Georgia,"Times New Roman",serif; font-size:17px; font-weight:700; }
+    .mode-text small { color:#b0aeb2; font-size:10px; }
+    .mode-icon { color:var(--mode-accent); font-size:21px; }
+    .mode-choice[aria-pressed="true"] .mode-icon { color:var(--mode-accent); }
+    .presets { grid-column:1; align-self:start; margin:0; }
+    .preset-heading { color:#9b99a0; }
+    .preset-list { gap:5px; }
+    .preset { min-height:31px; border:1px solid #44434a; border-radius:0; background:#17181d; color:#dedbd4; }
+    .preset:hover { border-color:#99979e; background:#22232a; }
+    .preset[aria-pressed="true"] { border-color:var(--blue); background:rgba(37,143,232,.14); color:#c2e3ff; }
+    .preset.break-preset { border-color:rgba(227,53,50,.55); color:#ff9c91; }
+    .preset.break-preset[aria-pressed="true"] { border-color:#e33532; background:rgba(227,53,50,.18); color:#ffe2df; box-shadow:none; }
+    .control-settings { grid-column:2; grid-row:3/span 2; display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
+    .control-group { border-color:#3c3b42; }
+    .control-title { color:#e6e2db; }
+    output { color:#fffdf8; }
+    .unit,.range-scale { color:#9a989e; }
+    input[type="range"]::-webkit-slider-runnable-track { background:linear-gradient(90deg,#e84636,#dfd8ca 54%,#44444a); }
+    input[type="range"]::-moz-range-track { background:linear-gradient(90deg,#e84636,#dfd8ca 54%,#44444a); }
+    .mass-row input[type="range"]::-webkit-slider-runnable-track { background:linear-gradient(90deg,#999da4,#4d5058); }
+    .mass-row input[type="range"]::-moz-range-track { background:linear-gradient(90deg,#999da4,#4d5058); }
+    .switches { gap:7px 12px; }
+    .check { color:#c1bec0; }
+    .check input { accent-color:var(--blue); width:15px; height:15px; }
+    .controls-note { grid-column:1; margin:12px 0 0; padding:9px 10px; border-left:2px solid var(--orange); border-radius:0; background:#191a20; color:#bcb9b5; }
+    .controls-note strong { color:#f4f0e7; }
+    .stage-head { padding:13px 17px 12px; border-bottom:1px solid #34343a; }
+    .stage-title { gap:13px; }
+    .stage-title strong { color:#efede6; font-family:Impact,"Arial Narrow",sans-serif; font-size:14px; letter-spacing:.13em; }
+    .stage-title small { color:#aaa8ac; }
+    .stage-counter { border-radius:0; border-color:#e54a3e; background:rgba(229,74,62,.12); color:#ffaca3; }
+    .stage-state { color:#c4c2bd; }
+    .break-mode .stage { border-color:rgba(227,53,50,.68); }
+    .canvas-wrap { padding:0 7px; }
+    canvas { border-radius:0; }
+    .canvas-badge,.canvas-scale { border-radius:0; background:rgba(8,9,12,.88); }
+    .canvas-zoom button { border-radius:0; border-color:#68666d; background:rgba(10,11,15,.92); }
+    .canvas-zoom button:hover { background:#25262d; }
+    .compare-tag { border-radius:0; background:rgba(8,9,12,.9); }
+    .stage-bar { border-top:1px solid #34343a; }
+    .action { min-height:42px; border-radius:0; background:#e84636; }
+    .action.secondary { border-color:#55545a; border-radius:0; background:#1c1d23; color:#eeebe5; }
+    .action:focus-visible,.mode-choice:focus-visible { outline-color:#fffdf8; }
+    .legend { color:#b4b1b4; }
+    .readout-card { border:0; border-top:3px solid var(--blue); border-radius:0; background:#14151a; box-shadow:none; }
+    .readout-card:nth-child(2) { border-top-color:#278ee5; }
+    .readout-card:nth-child(3) { border-top-color:#e23d38; }
+    .readout-icon { border-radius:0; border-color:#45444a; color:#62b9ff; }
+    .readout-card:nth-child(2) .readout-icon { color:#71baff; }
+    .readout-card:nth-child(3) .readout-icon { color:#ff6558; }
+    .readout-label { color:#aaa8ad; }
+    .readout-value { font-family:Georgia,"Times New Roman",serif; font-size:20px; }
+    .readout-value small { color:#c0bdc0; font-family:var(--font-body,Arial,sans-serif); }
+    .velocity-panel { border:1px solid #525157; border-radius:0; background:#101115; box-shadow:none; }
+    .velocity-kicker { color:#aaa7ac; }
+    .velocity-heading h2 { font-family:Georgia,"Times New Roman",serif; font-size:20px; font-weight:500; }
+    .impact-badge { border-radius:0; border-color:rgba(37,143,232,.56); color:#8bcaff; }
+    .impact-badge.hit { border-color:rgba(227,53,50,.7); color:#ff9288; }
+    .impact-metric { border:0; border-left:2px solid #258fe8; border-radius:0; background:#17181e; }
+    .impact-metric:nth-child(even) { border-left-color:#e33532; }
+    .impact-metric span { color:#aeabb0; }
+    .velocity-card { border:1px solid #4a4950; border-top:3px solid #258fe8; border-radius:0; background:#15161b; }
+    .velocity-card:nth-child(2) { border-top-color:#e33532; }
+    .velocity-card p { color:#f2efe8; font-family:Georgia,"Times New Roman",serif; font-size:13px; }
+    .velocity-phase { border:1px solid #393940; border-radius:0; background:#101115; }
+    .velocity-phase:nth-child(2) { border-color:rgba(37,143,232,.38); }
+    .velocity-card:nth-child(2) .velocity-phase:nth-child(2) { border-color:rgba(227,53,50,.38); }
+    .velocity-phase>span,.angle-note { color:#a6a3a8; }
+    .velocity-phase strong { font-family:Georgia,"Times New Roman",serif; }
+    .lower { gap:0; border-top:1px solid #4b4a50; border-bottom:1px solid #4b4a50; }
+    .principles { border:0; border-right:1px solid #4b4a50; border-radius:0; background:transparent; box-shadow:none; }
+    .principle { border-color:#3d3c42; }
+    .principle-number { color:#f0442e; }
+    .principle p { color:#c0bdc0; }
+    .formula { border:0; border-radius:0; background:transparent; }
+    .formula-label { color:#aaa7ac; }
+    .formula-main { color:#f4f0e7; font-size:22px; }
+    .formula-note { color:#b3b0b4; }
+    .footer { border-color:#3b3a40; color:#8c8990; }
+    @media (max-width: 1050px) {
+      .app { width:min(100% - 40px,1480px); }
+      h1 { font-size:clamp(58px,7.3vw,88px); }
+      .controls { grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr); }
+    }
+    @media (max-width: 820px) {
+      .app { width:min(100% - 28px,700px); }
+      .hero { grid-template-columns:1fr; gap:23px; padding:33px 4px 27px; }
+      h1 { font-size:clamp(64px,12vw,100px); white-space:normal; }
+      h1 em { display:block; margin:.08em 0 0; }
+      .hero-aside { justify-self:start; width:100%; max-width:600px; padding:0 0 0 18px; border-top:0; border-left:2px solid var(--blue); text-align:left; }
+      .hero-chips { justify-content:flex-start; }
+      .controls { grid-template-columns:minmax(210px,.8fr) minmax(0,1.2fr); padding:16px; }
+      .control-settings { column-gap:12px; }
+      .readouts { gap:8px; }
+      .readout-card { align-items:flex-start; flex-direction:column; min-height:96px; }
+      .lower { grid-template-columns:1fr; }
+      .principles { border-right:0; border-bottom:1px solid #4b4a50; }
+    }
+    @media (max-width: 560px) {
+      body { padding-bottom:calc(76px + env(safe-area-inset-bottom)); }
+      .app { width:calc(100% - 20px); padding-top:9px; }
+      .topline { padding:0 1px 12px; }
+      .brand { gap:8px; font-size:9px; letter-spacing:.14em; }
+      .brand-mark { width:31px; height:31px; font-size:13px; }
+      .top-meta { max-width:116px; font-size:7px; letter-spacing:.1em; }
+      .hero { gap:19px; padding:27px 2px 22px; }
+      .eyebrow { margin-bottom:10px; font-size:8px; }
+      .eyebrow span { width:24px; height:24px; }
+      h1 { font-size:clamp(48px,12.4vw,70px); line-height:.82; letter-spacing:-.035em; }
+      h1 em { margin-top:.08em; }
+      .hero-aside { padding-left:13px; }
+      .equation-lockup { margin-bottom:10px; }
+      .equation-lockup>span { font-size:7px; }
+      .equation-lockup strong { font-size:27px; }
+      .hero-aside p { margin-bottom:10px; font-size:12px; }
+      .hero-chips { justify-content:flex-start; gap:7px 11px; }
+      .chip { font-size:7px; }
+      .workbench { gap:8px; margin-top:9px; }
+      .stage { overflow:visible; padding-bottom:62px; }
+      .stage-head { flex-wrap:wrap; gap:7px; padding:10px 10px; }
+      .stage-title { display:grid; gap:3px; }
+      .stage-title strong { font-size:12px; }
+      .stage-title small { font-size:8px; }
+      .stage-state { font-size:7px; }
+      .stage-counter { margin-left:auto; padding:4px 6px; }
+      .stage-counter strong { font-size:13px; }
+      .canvas-wrap { padding:0 4px; }
+      .canvas-badge { top:7px; left:10px; padding:4px 5px; font-size:6px; }
+      .canvas-scale { top:7px; right:10px; padding:4px 5px; font-size:6px; }
+      .canvas-zoom { top:37px; right:8px; bottom:auto; gap:4px; }
+      .canvas-zoom button { width:35px; height:35px; font-size:18px; }
+      .stage-bar {
+        position:fixed; z-index:30; left:50%; bottom:calc(8px + env(safe-area-inset-bottom));
+        width:min(calc(100% - 20px),680px); flex-wrap:nowrap; align-items:center; gap:7px; margin:0; padding:6px;
+        transform:translateX(-50%); border:1px solid #5b5960; border-radius:0; background:rgba(14,15,19,.97);
+        box-shadow:0 8px 28px rgba(0,0,0,.55); backdrop-filter:blur(14px);
+      }
+      .stage-tools { width:auto; flex:1; gap:4px; }
+      .stage-tools .action { min-height:44px; flex:1; padding:0 5px; font-size:8px; letter-spacing:.01em; white-space:nowrap; }
+      .stage-tools .step-action { flex:0 0 47px; padding:0 3px; gap:3px; }
+      .legend { display:none; }
+      .time-display { min-width:55px; margin:0; text-align:center; font-size:8px; white-space:nowrap; }
+      .controls { grid-template-columns:1fr; gap:0; padding:13px 12px; }
+      .panel-heading { grid-column:1; margin-bottom:11px; }
+      .panel-heading h2 { font-size:13px; }
+      .mode-list { grid-column:1; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:13px; }
+      .mode-choice { min-height:78px; align-items:flex-start; gap:7px; padding:11px 8px; }
+      .mode-num { flex:0 0 26px; width:26px; height:26px; font-size:11px; }
+      .mode-text { gap:4px; }
+      .mode-text strong { font-size:12px; line-height:1.12; }
+      .mode-text small { font-size:8px; line-height:1.25; }
+      .mode-icon { display:none; }
+      .presets { grid-column:1; margin:0 0 3px; }
+      .preset-list { flex-wrap:nowrap; overflow-x:auto; padding:1px 1px 6px; scrollbar-width:thin; }
+      .preset { min-height:34px; flex:0 0 auto; padding:0 9px; }
+      .control-settings { grid-column:1; grid-row:auto; grid-template-columns:1fr; gap:0; }
+      .control-group { padding:10px 0; }
+      .control-title { font-size:11px; }
+      input[type="range"] { height:28px; }
+      input[type="range"]::-webkit-slider-thumb { width:19px; height:19px; margin-top:-7.5px; }
+      input[type="range"]::-moz-range-thumb { width:16px; height:16px; }
+      .check { min-height:34px; padding-right:5px; }
+      .controls-note { grid-column:1; margin-top:8px; }
+      .readouts { grid-template-columns:1fr 1fr; }
+      .readout-card { min-height:78px; padding:10px; }
+      .readout-card:last-child { grid-column:1/-1; min-height:65px; flex-direction:row; align-items:center; }
+      .readout-icon { flex-basis:28px; width:28px; height:28px; }
+      .readout-label { font-size:7px; }
+      .readout-value { font-size:16px; }
+      .readout-value small { font-size:8px; }
+      .velocity-panel { padding:11px; }
+      .velocity-heading h2 { font-size:16px; }
+      .velocity-grid { grid-template-columns:1fr; }
+      .velocity-card { min-height:60px; padding:10px; }
+      .velocity-phase { padding:6px; }
+      .impact-summary { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .impact-metric { padding:7px; }
+      .impact-metric span { font-size:7px; }
+      .impact-metric strong { font-size:11px; }
+      .principles { grid-template-columns:1fr; }
+      .principle { display:flex; align-items:center; gap:11px; border-right:0; border-bottom:1px solid #3d3c42; padding:10px 13px; }
+      .principle:last-child { border-bottom:0; }
+      .principle-number { margin:0; min-width:18px; }
+      .footer { flex-direction:column; gap:7px; }
+      .footer span:last-child { text-align:left; }
+    }
+
+/* Softer hierarchy and more breathing room. */
+    :root { --line:rgba(244,240,231,.15); --radius:10px; }
+    body {
+      background:
+        radial-gradient(ellipse at 50% -32%,rgba(255,255,255,.055),transparent 44rem),
+        linear-gradient(180deg,#111216 0%,#0b0c10 70%);
+    }
+    .app { width:min(1440px,calc(100% - 52px)); padding-top:18px; }
+    .topline { border-color:#393a40; padding-bottom:14px; }
+    .hero { gap:16px; padding:32px 8px 23px; border-color:#393a40; }
+    h1 { font-size:clamp(48px,6.2vw,88px); letter-spacing:-.028em; line-height:.94; white-space:normal; }
+    h1 em { margin:0; }
+    .title-first,.title-second { display:inline; }
+    .hero-aside { width:min(100%,790px); padding-top:11px; border-color:#44454c; }
+    .equation-lockup { margin-bottom:10px; }
+    .equation-lockup strong { font-size:34px; }
+    .hero-aside p { max-width:680px; margin:0 auto 10px; color:#d1cfc9; font-size:13px; }
+    .hero-chips { margin-top:10px; gap:8px 16px; }
+    .chip { padding-top:6px; color:#dedbd4; font-size:8px; }
+    .workbench { gap:10px; margin-top:12px; }
+    .stage { border-color:#45464d; border-radius:11px; }
+    .stage-head { padding:12px 16px 11px; border-color:#303138; }
+    .stage-title strong { font-size:13px; }
+    .stage-title small { color:#b7b5bc; }
+    .stage-state { color:#cfcdc6; }
+    .stage-counter { border-radius:7px; }
+    .canvas-wrap canvas { border-radius:6px; }
+    .canvas-badge,.canvas-scale { border-radius:6px; background:rgba(8,9,12,.84); }
+    .canvas-zoom button { border-radius:7px; }
+    .controls { border-color:#3c3d44; border-radius:11px; background:linear-gradient(145deg,#17181d,#111216); padding:17px 18px 14px; }
+    .panel-heading { margin-bottom:12px; border-color:#3b3c42; }
+    .panel-heading h2 { font-family:Inter,ui-sans-serif,system-ui,sans-serif; font-size:11px; letter-spacing:.14em; }
+    .mode-choice { min-height:76px; padding:11px 13px; border-radius:7px; border-color:#41424a; }
+    .mode-choice[data-mode="elastic"][aria-pressed="true"] { background:linear-gradient(125deg,rgba(37,143,232,.2),rgba(21,22,27,.94) 72%); box-shadow:inset 0 2px 0 var(--mode-accent); }
+    .mode-choice[data-mode="sticky"][aria-pressed="true"] { background:linear-gradient(125deg,rgba(227,53,50,.18),rgba(21,22,27,.94) 72%); box-shadow:inset 0 2px 0 var(--mode-accent); }
+    .mode-text strong { font-size:16px; }
+    .preset { border-radius:5px; }
+    .controls-note { border-radius:0 6px 6px 0; }
+    .stage-bar { border-color:#303138; }
+    .action,.action.secondary { border-radius:7px; }
+    .readout-card { border-radius:8px; background:#15161b; }
+    .readout-icon { border-radius:8px; }
+    .velocity-panel { border-radius:11px; background:linear-gradient(145deg,#15161b,#101115); }
+    .impact-metric { border-radius:6px; }
+    .velocity-card { border-radius:8px; }
+    .velocity-phase { border-radius:6px; }
+    .formula-main { font-size:20px; }
+    @media (max-width: 820px) {
+      .app { width:min(100% - 28px,700px); }
+      .hero { gap:17px; padding:28px 4px 22px; }
+      h1 { font-size:clamp(48px,8.6vw,68px); line-height:.94; }
+      .title-first,.title-second { display:block; }
+      .hero-aside { max-width:650px; }
+    }
+    @media (max-width: 560px) {
+      .app { width:calc(100% - 20px); padding-top:9px; }
+      .hero { gap:14px; padding:22px 2px 18px; }
+      h1 { font-size:clamp(40px,9.5vw,54px); line-height:.94; letter-spacing:-.03em; }
+      .equation-lockup strong { font-size:26px; }
+      .hero-aside p { font-size:12px; }
+      .workbench { gap:8px; margin-top:9px; }
+      .stage { border-radius:8px; }
+      .canvas-wrap canvas { border-radius:4px; }
+      .controls { border-radius:9px; padding:12px; }
+      .mode-choice { min-height:74px; border-radius:6px; }
+      .mode-text strong { font-size:12px; }
+      .readout-card { border-radius:6px; }
+      .velocity-panel { border-radius:9px; }
+    }
+
+</style>
+</head>
+<body>
+  <main class="app">
+    <header class="topline">
+      <div class="brand"><span class="brand-mark">01</span><span>МЕХАНИКА <i>СТОЛКНОВЕНИЙ</i></span></div>
+      <div class="top-meta"><span class="live-dot"></span> ЛАБОРАТОРНАЯ · КИНЕМАТИКА</div>
+    </header>
+
+    <section class="hero" aria-labelledby="main-title">
+      <div>
+        <p class="eyebrow"><span>01</span> МЕХАНИКА СОУДАРЕНИЯ</p>
+        <h1 id="main-title"><span class="title-first">НЕЦЕНТРАЛЬНЫЕ</span> <span class="title-second">УДАРЫ ТЕЛ</span></h1>
+      </div>
+      <div class="hero-aside">
+        <div class="equation-lockup"><span>КОЭФФИЦИЕНТ ВОССТАНОВЛЕНИЯ</span><strong>e<sub>n</sub> = <i>|v′<sub>n</sub>|</i> / <i>|v<sub>n</sub>|</i></strong></div>
+        <p><strong>Одна геометрия контакта — два исхода.</strong> При e = 1 шары отскакивают без потери кинетической энергии. При e = 0 они сцепляются; импульс системы сохраняется.</p>
+        <div class="hero-chips"><span class="chip">e = 1 · упругий</span><span class="chip">e = 0 · сцепление</span><span class="chip">p = const</span></div>
+      </div>
+    </section>
+
+    <section class="workbench" aria-label="Симулятор столкновения шаров">
+      <aside class="controls">
+        <div class="panel-heading"><h2>Выбери модель столкновения</h2><span class="mode-code" id="modeCode">e = 1</span></div>
+        <div class="mode-list" role="tablist" aria-label="Тип столкновения">
+          <button class="mode-choice" type="button" data-mode="elastic" role="tab" aria-selected="true" aria-pressed="true">
+            <span class="mode-num">01</span><span class="mode-text"><strong>Упругий</strong><small>e = 1 · шары отскакивают</small></span><span class="mode-icon" aria-hidden="true">↗</span>
+          </button>
+          <button class="mode-choice" type="button" data-mode="sticky" role="tab" aria-selected="false" aria-pressed="false">
+            <span class="mode-num">02</span><span class="mode-text"><strong>Абсолютно неупругий</strong><small>e = 0 · шары сцепляются</small></span><span class="mode-icon" aria-hidden="true">⤴</span>
+          </button>
+        </div>
+        <div class="presets" aria-label="Готовые сценарии">
+          <div class="preset-heading">БЫСТРЫЕ СЦЕНАРИИ</div>
+          <div class="preset-list">
+            <button class="preset" type="button" data-preset="center">Центр</button>
+            <button class="preset" type="button" data-preset="grazing">Касание</button>
+            <button class="preset" type="button" data-preset="equal">Равные массы</button>
+            <button class="preset" type="button" data-preset="heavy">Тяжёлый шар</button><button class="preset break-preset" type="button" data-preset="break" aria-pressed="false">Разбой · 15 шаров</button>
+          </div>
+        </div>
+
+        <div class="control-settings">
+          <div class="control-group">
+            <label class="control-title" for="speed"><span>Скорость битка</span><output id="speedOut" for="speed">3,2</output><span class="unit">м/с</span></label>
+            <input id="speed" type="range" min="1.0" max="5.0" value="3.2" step="0.1" aria-label="Начальная скорость битка">
+            <div class="range-scale"><span>1,0</span><span>5,0 м/с</span></div>
+          </div>
+          <div class="control-group">
+            <label class="control-title" for="offset"><span>Смещение удара b</span><output id="offsetOut" for="offset">+0,8</output><span class="unit">см</span></label>
+            <input id="offset" type="range" min="-5.5" max="5.5" value="0.8" step="0.1" aria-label="Смещение точки прицеливания">
+            <div class="range-scale"><span id="offsetMinLabel">−5,5</span><span>0</span><span id="offsetMaxLabel">+5,5 см</span></div>
+          </div>
+          <div class="control-group">
+            <div class="control-title"><span>Масса шаров</span><span class="unit">кг</span></div>
+            <div class="mass-row"><span class="ball-index one">1</span><input id="mass1" type="range" min="0.10" max="0.42" value="0.17" step="0.01" aria-label="Масса битка"><output class="mass-value" id="mass1Out" for="mass1">0,17</output></div>
+            <div class="mass-row"><span class="ball-index two">2</span><input id="mass2" type="range" min="0.10" max="0.42" value="0.22" step="0.01" aria-label="Масса прицельного шара"><output class="mass-value" id="mass2Out" for="mass2">0,22</output></div>
+          </div>
+          <div class="control-group">
+            <div class="control-title"><span>Показать на столе</span></div>
+            <div class="switches">
+              <label class="check"><input id="showTrails" type="checkbox" checked> Траектории</label>
+              <label class="check"><input id="showNormal" type="checkbox" checked> Нормаль удара</label>
+              <label class="check"><input id="showCompare" type="checkbox"> Сравнить e = 1 / e = 0</label>
+            </div>
+          </div>
+        </div>
+        <p class="controls-note" id="modeNote"><strong>Модель без вращения:</strong> при e = 1 кинетическая энергия и импульс сохраняются. Смещение b меняет направление линии центров.</p>
+      </aside>
+
+      <div class="stage">
+        <div class="stage-head">
+          <div class="stage-title"><strong>ПОЛЕ · 01</strong><small>Тяни b · один палец — обзор · pinch — масштаб</small></div>
+          <div class="stage-counter" id="breakCounter" hidden aria-live="polite"><span>ЗАБИТО</span><strong id="pottedCount">0</strong><small>/ 15</small></div><div class="stage-state" aria-live="polite"><span class="state-light" id="stateLight"></span><span id="stageState">ГОТОВ К УДАРУ</span></div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="table" width="1200" height="650" role="img" aria-label="Бильярдный стол для моделирования столкновений шаров"></canvas>
+          <div class="canvas-badge" id="canvasBadge">ПЕРЕТАЩИТЕ МЕТКУ b</div>
+          <div class="canvas-scale"><span class="scale-mark"></span><span id="scaleLabel">ЛИНИЯ ИМПУЛЬСА</span></div>
+          <div class="compare-tag" id="compareTag" hidden>ПУНКТИР · ВТОРОЙ РЕЖИМ</div>
+          <div class="canvas-zoom" aria-label="Масштаб стола">
+            <button type="button" id="zoomOut" aria-label="Уменьшить масштаб" title="Уменьшить масштаб">−</button>
+            <button type="button" id="zoomFit" aria-label="Показать весь стол" title="Показать весь стол">⌂</button>
+            <button type="button" id="zoomIn" aria-label="Увеличить масштаб" title="Увеличить масштаб">+</button>
+          </div>
+        </div>
+        <div class="stage-bar">
+          <div class="stage-tools">
+            <button class="action" id="playButton" type="button"><span class="play-glyph" id="playGlyph">▶</span><span id="playLabel">УДАРИТЬ</span></button>
+            <button class="action secondary step-action" id="stepButton" type="button" aria-label="Сделать один шаг" title="Сделать один шаг">▷| <span>ШАГ</span></button>
+            <button class="action secondary" id="resetButton" type="button">СБРОСИТЬ</button>
+          </div>
+          <div class="legend" aria-label="Обозначения">
+            <span class="legend-item"><span class="legend-line"></span> биток</span>
+            <span class="legend-item"><span class="legend-line red"></span> прицельный шар</span>
+            <span class="legend-item"><span class="legend-line white"></span> линия центров</span>
+            <span class="legend-item compare-legend" id="compareLegend" hidden><span class="legend-line compare-line"></span> второй режим</span>
+          </div>
+          <span class="time-display" id="timeDisplay">t = 0,00 с</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="readouts" aria-label="Результаты расчёта">
+      <article class="readout-card"><span class="readout-icon" aria-hidden="true">↔</span><div><p class="readout-label">Импульс системы</p><p class="readout-value" id="momentumReadout">0,54 <small>кг·м/с · сохраняется</small></p></div></article>
+      <article class="readout-card"><span class="readout-icon" aria-hidden="true">◉</span><div><p class="readout-label">Кинетическая энергия</p><p class="readout-value" id="energyReadout">0,87 <small>→ 0,87 Дж</small></p></div></article>
+      <article class="readout-card"><span class="readout-icon" aria-hidden="true">∆</span><div><p class="readout-label">Потеря кинетической энергии</p><p class="readout-value" id="lossReadout">0% <small>в модели</small></p></div></article>
+    </section>
+
+    <section class="velocity-panel" aria-label="Физические величины в момент столкновения">
+      <div class="velocity-heading"><div><p class="velocity-kicker">РАЗБОР СТОЛКНОВЕНИЯ</p><h2>До удара и сразу после</h2></div><span class="impact-badge" id="impactBadge">ПРЕДСКАЗАНИЕ</span></div>
+      <div class="impact-summary" aria-label="Параметры контакта">
+        <div class="impact-metric"><span>Время контакта t</span><strong id="impactTime">—</strong></div>
+        <div class="impact-metric"><span>Угол нормали n</span><strong id="normalAngle">—</strong></div>
+        <div class="impact-metric"><span>Скорость сближения</span><strong id="relativeSpeed">—</strong></div>
+        <div class="impact-metric"><span>Импульс J</span><strong id="impactImpulse">—</strong></div>
+      </div>
+      <div class="velocity-grid">
+        <article class="velocity-card"><span class="ball-index one">1</span><div class="velocity-main"><p>Биток</p><div class="velocity-phases">
+          <div class="velocity-phase"><span>До контакта</span><strong id="cueBeforeSpeed">—</strong><small id="cueBeforeVector">vₓ — · vᵧ —</small><small id="cueBeforeAngle">θ —</small></div>
+          <div class="velocity-phase"><span>Сразу после</span><strong id="cueAfterSpeed">—</strong><small id="cueAfterVector">vₓ — · vᵧ —</small><small id="cueAfterAngle">θ —</small></div>
+        </div></div></article>
+        <article class="velocity-card"><span class="ball-index two">2</span><div class="velocity-main"><p>Прицельный шар</p><div class="velocity-phases">
+          <div class="velocity-phase"><span>До контакта</span><strong id="targetBeforeSpeed">—</strong><small id="targetBeforeVector">vₓ — · vᵧ —</small><small id="targetBeforeAngle">θ —</small></div>
+          <div class="velocity-phase"><span>Сразу после</span><strong id="targetAfterSpeed">—</strong><small id="targetAfterVector">vₓ — · vᵧ —</small><small id="targetAfterAngle">θ —</small></div>
+        </div></div></article>
+      </div>
+      <p class="angle-note">θ скорости и угол нормали n отсчитываются от горизонтали вправо; «+» — против часовой стрелки.</p>
+    </section>
+
+    <section class="lower" aria-label="Как читать модель">
+      <div class="principles">
+        <div class="principle"><span class="principle-number">1</span><p>Точка прицеливания задаёт смещение <b>b</b> и угол удара.</p></div>
+        <div class="principle"><span class="principle-number">2</span><p>Импульс передаётся вдоль нормали — линии центров шаров.</p></div>
+        <div class="principle"><span class="principle-number">3</span><p>При e = 0 шары сцепляются; часть энергии становится вращением.</p></div>
+      </div>
+      <div class="formula"><p class="formula-label">Закон сохранения импульса</p><p class="formula-main">m₁v₁ + m₂v₂ = const</p><p class="formula-note" id="formulaNote">В упругом ударе сохраняется и кинетическая энергия. Трение о сукно, вращение до контакта и потери на бортах не учитываются.</p></div>
+    </section>
+
+    <footer class="footer"><span>Интерактивная учебная модель · упругий и абсолютно неупругий удары</span><span>В режиме разбоя треугольник из 15 шаров и счётчик забитых.</span></footer>
+  </main>
+
+  <script>
+(function () {
+      "use strict";
+      const canvas = document.getElementById("table");
+      const ctx = canvas.getContext("2d");
+      const W = 1200, H = 650;
+      const PPM = 492;
+      const felt = { left: 58, right: 1142, top: 64, bottom: 586 };
+      const cueStart = { x: 250, y: 325 };
+      const targetStart = { x: 810, y: 325 };
+      const scale = PPM;
+      const modeButtons = Array.from(document.querySelectorAll(".mode-choice"));
+      const speedInput = document.getElementById("speed");
+      const offsetInput = document.getElementById("offset");
+      const mass1Input = document.getElementById("mass1");
+      const mass2Input = document.getElementById("mass2");
+      const showTrails = document.getElementById("showTrails");
+      const showNormal = document.getElementById("showNormal");
+      const showCompare = document.getElementById("showCompare");
+      const stateLabel = document.getElementById("stageState");
+      const stateLight = document.getElementById("stateLight");
+      const playButton = document.getElementById("playButton");
+      const stepButton = document.getElementById("stepButton");
+      const playLabel = document.getElementById("playLabel");
+      const playGlyph = document.getElementById("playGlyph");
+      const timeDisplay = document.getElementById("timeDisplay");
+      const compareLegend = document.getElementById("compareLegend");
+      const compareTag = document.getElementById("compareTag");
+      const breakCounter = document.getElementById("breakCounter");
+      const pottedCount = document.getElementById("pottedCount");
+      const canvasBadge = document.getElementById("canvasBadge");
+      const scaleLabel = document.getElementById("scaleLabel");
+      const pxPerCm = (felt.right - felt.left) / 220;
+      let mode = "elastic";
+      let scenario = "pair";
+      let preview = null;
+      let alternatePreview = null;
+      let simulation = null;
+      let frameHandle = 0;
+      let view = { scale: 1, x: 0, y: 0 };
+      let pointers = new Map();
+      let gesture = null;
+
+      function number(id) { return Number(document.getElementById(id).value); }
+      function fmt(value, digits) { return Number(value).toFixed(digits).replace(".", ","); }
+      function vecLength(v) { return Math.hypot(v.x, v.y); }
+      function cross(a, b) { return a.x * b.y - a.y * b.x; }
+      function add(a, b) { return { x: a.x + b.x, y: a.y + b.y }; }
+      function mul(a, k) { return { x: a.x * k, y: a.y * k }; }
+      function fmtSigned(value) { return (value > 0 ? "+" : "") + fmt(value, 1); }
+
+      function getParameters() {
+        return {
+          speed: number("speed"),
+          offsetCm: number("offset"),
+          m1: number("mass1"),
+          m2: number("mass2"),
+          r1: 14 * Math.sqrt(number("mass1") / 0.17),
+          r2: 14 * Math.sqrt(number("mass2") / 0.17),
+          e: mode === "elastic" ? 1 : 0
+        };
+      }
+
+      function syncOffsetLimits() {
+        const radiusSum = 14 * Math.sqrt(number("mass1") / .17) + 14 * Math.sqrt(number("mass2") / .17);
+        const limit = Math.max(.2, Math.min(5.5, Math.floor((radiusSum - 1) / pxPerCm * 10) / 10));
+        offsetInput.min = (-limit).toFixed(1);
+        offsetInput.max = limit.toFixed(1);
+        const clamped = clamp(Number(offsetInput.value), -limit, limit);
+        offsetInput.value = (Math.round(clamped * 10) / 10).toFixed(1);
+        document.getElementById("offsetMinLabel").textContent = "−" + fmt(limit, 1);
+        document.getElementById("offsetMaxLabel").textContent = "+" + fmt(limit, 1) + " см";
+      }
+
+      function initialBalls(p) {
+        const offsetPx = p.offsetCm * pxPerCm;
+        if (scenario === "break") {
+          const balls = [{ x: 250, y: cueStart.y + offsetPx, vx: p.speed * scale, vy: 0, r: p.r1, m: p.m1, type: "cue", label: "", potted: false }];
+          const gap = p.r2 * 2 + .45;
+          let number = 1;
+          for (let row = 0; row < 5; row++) {
+            for (let slot = 0; slot <= row; slot++) {
+              balls.push({
+                x: 760 + row * gap * Math.sqrt(3) / 2,
+                y: cueStart.y + (slot - row / 2) * gap,
+                vx: 0, vy: 0, r: p.r2, m: p.m2, type: "target", label: String(number), number: number, potted: false
+              });
+              number++;
+            }
+          }
+          return balls;
+        }
+        return [
+          { x: cueStart.x, y: cueStart.y + offsetPx, vx: p.speed * scale, vy: 0, r: p.r1, m: p.m1, type: "cue", label: "1", potted: false },
+          { x: targetStart.x, y: targetStart.y, vx: 0, vy: 0, r: p.r2, m: p.m2, type: "target", label: "3", potted: false }
+        ];
+      }
+
+      function contactGeometry(p, balls) {
+        const a = balls[0], b = balls[1];
+        const dy = b.y - a.y;
+        const d = a.r + b.r;
+        if (Math.abs(dy) >= d) return null;
+        const dx = Math.sqrt(Math.max(0, d * d - dy * dy));
+        const contactX = b.x - dx;
+        const t = (contactX - a.x) / Math.max(1, a.vx);
+        if (t <= 0) return null;
+        const n = { x: dx / d, y: dy / d };
+        return { x: contactX, y: a.y, tx: b.x, ty: b.y, t: t, nx: n.x, ny: n.y, d: d };
+      }
+
+      function solvePrediction(p, balls) {
+        const solveMode = arguments.length > 2 ? arguments[2] : mode;
+        const g = contactGeometry(p, balls);
+        if (!g) return null;
+        const a = balls[0], b = balls[1];
+        const v1 = { x: a.vx, y: a.vy };
+        const v2 = { x: b.vx, y: b.vy };
+        const n = { x: g.nx, y: g.ny };
+        const restitution = solveMode === "elastic" ? 1 : 0;
+        const contact1 = { x: g.x, y: g.y };
+        const contact2 = { x: g.tx, y: g.ty };
+        let after1, after2, pair = null;
+        const relative = (v1.x - v2.x) * n.x + (v1.y - v2.y) * n.y;
+        if (solveMode === "elastic") {
+          const impulse = (1 + restitution) * relative / (1 / a.m + 1 / b.m);
+          after1 = { x: v1.x - impulse * n.x / a.m, y: v1.y - impulse * n.y / a.m };
+          after2 = { x: v2.x + impulse * n.x / b.m, y: v2.y + impulse * n.y / b.m };
+        } else {
+          const total = a.m + b.m;
+          const vcm = { x: (a.m * v1.x + b.m * v2.x) / total, y: (a.m * v1.y + b.m * v2.y) / total };
+          const center = { x: (a.m * contact1.x + b.m * contact2.x) / total, y: (a.m * contact1.y + b.m * contact2.y) / total };
+          const r1 = { x: -b.m / total * g.d * n.x, y: -b.m / total * g.d * n.y };
+          const r2 = { x: a.m / total * g.d * n.x, y: a.m / total * g.d * n.y };
+          const angularMomentum = a.m * cross(r1, v1) + b.m * cross(r2, v2);
+          const inertia = 0.5 * a.m * a.r * a.r + 0.5 * b.m * b.r * b.r + a.m * (r1.x * r1.x + r1.y * r1.y) + b.m * (r2.x * r2.x + r2.y * r2.y);
+          const omega = angularMomentum / inertia;
+          after1 = { x: vcm.x - omega * r1.y, y: vcm.y + omega * r1.x };
+          after2 = { x: vcm.x - omega * r2.y, y: vcm.y + omega * r2.x };
+          pair = { x: center.x, y: center.y, vx: vcm.x, vy: vcm.y, angle: Math.atan2(n.y, n.x), omega: omega, r1x: r1.x, r1y: r1.y, r2x: r2.x, r2y: r2.y, inertia: inertia, angularMomentum: angularMomentum, d: g.d };
+        }
+        const pBefore = { x: a.m * v1.x / scale, y: a.m * v1.y / scale };
+        const pAfter = { x: (a.m * after1.x + b.m * after2.x) / scale, y: (a.m * after1.y + b.m * after2.y) / scale };
+        const kBefore = 0.5 * a.m * (v1.x * v1.x + v1.y * v1.y) / (scale * scale);
+        let kAfter = 0.5 * a.m * (after1.x * after1.x + after1.y * after1.y) / (scale * scale) + 0.5 * b.m * (after2.x * after2.x + after2.y * after2.y) / (scale * scale);
+        if (pair) kAfter = (0.5 * (a.m + b.m) * (pair.vx * pair.vx + pair.vy * pair.vy) + 0.5 * pair.inertia * pair.omega * pair.omega) / (scale * scale);
+        const impulse = vecLength({ x: a.m * (after1.x - v1.x) / scale, y: a.m * (after1.y - v1.y) / scale });
+        return { geometry: g, n: n, contact1: contact1, contact2: contact2, before1: v1, before2: v2, after1: after1, after2: after2, pair: pair, pBefore: pBefore, pAfter: pAfter, kBefore: kBefore, kAfter: kAfter, relativeSpeed: Math.max(0, relative) / scale, impulse: impulse };
+      }
+
+      function updateReadouts(p) {
+        const actualImpact = scenario !== "break" && simulation && simulation.impact ? simulation.impact : null;
+        const analysis = actualImpact || preview;
+        let momentum = preview ? vecLength(preview.pBefore) : p.m1 * p.speed;
+        let energyAfter = preview ? preview.kAfter : 0.5 * p.m1 * p.speed * p.speed;
+        let energyBefore = preview ? preview.kBefore : 0.5 * p.m1 * p.speed * p.speed;
+        if (actualImpact) {
+          const beforeMomentum = { x: p.m1 * actualImpact.before1.x / scale + p.m2 * actualImpact.before2.x / scale, y: p.m1 * actualImpact.before1.y / scale + p.m2 * actualImpact.before2.y / scale };
+          momentum = vecLength(beforeMomentum);
+          energyBefore = (.5 * p.m1 * vecLength(actualImpact.before1) ** 2 + .5 * p.m2 * vecLength(actualImpact.before2) ** 2) / (scale * scale);
+          energyAfter = (.5 * p.m1 * vecLength(actualImpact.after1) ** 2 + .5 * p.m2 * vecLength(actualImpact.after2) ** 2) / (scale * scale) + (actualImpact.rotationEnergy || 0);
+        }
+        if (scenario === "break" && simulation && simulation.isBreak) {
+          const momentumVector = simulation.balls.reduce(function (sum, ball) { return { x: sum.x + ball.m * ball.vx / scale, y: sum.y + ball.m * ball.vy / scale }; }, { x: 0, y: 0 });
+          momentum = vecLength(momentumVector);
+          energyBefore = simulation.initialEnergy;
+          energyAfter = simulation.balls.reduce(function (sum, ball) { return sum + .5 * ball.m * (ball.vx * ball.vx + ball.vy * ball.vy) / (scale * scale); }, 0);
+        }
+        const energyLoss = energyBefore > 0 ? Math.max(0, (energyBefore - energyAfter) / energyBefore * 100) : 0;
+        document.getElementById("speedOut").textContent = fmt(p.speed, 1);
+        document.getElementById("offsetOut").textContent = fmtSigned(p.offsetCm);
+        document.getElementById("mass1Out").textContent = fmt(p.m1, 2);
+        document.getElementById("mass2Out").textContent = fmt(p.m2, 2);
+        document.getElementById("modeCode").textContent = p.e === 1 ? "e = 1" : "e = 0";
+        document.getElementById("momentumReadout").innerHTML = fmt(momentum, 2) + " <small>кг·м/с · сохраняется</small>";
+        document.getElementById("energyReadout").innerHTML = fmt(energyBefore, 2) + " <small>→ " + fmt(energyAfter, 2) + " Дж</small>";
+        document.getElementById("lossReadout").innerHTML = fmt(energyLoss, 0) + "% <small>в модели</small>";
+        function writeVelocity(prefix, velocity) {
+          const speed = vecLength(velocity);
+          document.getElementById(prefix + "Speed").textContent = fmt(speed / scale, 2) + " м/с";
+          document.getElementById(prefix + "Vector").textContent = "vₓ " + fmt(velocity.x / scale, 2) + " · vᵧ " + fmt(-velocity.y / scale, 2) + " м/с";
+          document.getElementById(prefix + "Angle").textContent = "θ " + (speed < .001 ? "—" : fmt(Math.atan2(-velocity.y, velocity.x) * 180 / Math.PI, 0) + "°");
+        }
+        if (analysis) {
+          writeVelocity("cueBefore", analysis.before1); writeVelocity("cueAfter", analysis.after1);
+          writeVelocity("targetBefore", analysis.before2); writeVelocity("targetAfter", analysis.after2);
+          const contactTime = actualImpact ? actualImpact.time : analysis.geometry.t;
+          const normal = actualImpact ? actualImpact.n : analysis.n;
+          document.getElementById("impactTime").textContent = fmt(contactTime, 2) + " с";
+          document.getElementById("normalAngle").textContent = fmt(Math.atan2(-normal.y, normal.x) * 180 / Math.PI, 1) + "°";
+          document.getElementById("relativeSpeed").textContent = fmt(analysis.relativeSpeed, 2) + " м/с";
+          document.getElementById("impactImpulse").textContent = fmt(analysis.impulse, 3) + " кг·м/с";
+        } else {
+          ["cueBefore","cueAfter","targetBefore","targetAfter"].forEach(function (prefix) {
+            document.getElementById(prefix + "Speed").textContent = "—";
+            document.getElementById(prefix + "Vector").textContent = "vₓ — · vᵧ —";
+            document.getElementById(prefix + "Angle").textContent = "θ —";
+          });
+          ["impactTime","normalAngle","relativeSpeed","impactImpulse"].forEach(function (id) { document.getElementById(id).textContent = "—"; });
+        }
+        document.getElementById("impactBadge").textContent = actualImpact ? "КОНТАКТ ЗАФИКСИРОВАН" : "ПРЕДСКАЗАНИЕ";
+        document.getElementById("impactBadge").classList.toggle("hit", !!(simulation && simulation.collided));
+        compareLegend.hidden = !showCompare.checked;
+        compareTag.hidden = !showCompare.checked;
+        breakCounter.hidden = scenario !== "break";
+        pottedCount.textContent = simulation ? String(simulation.pottedCount || 0) : "0";
+        document.body.classList.toggle("break-mode", scenario === "break");
+        showNormal.disabled = scenario === "break";
+        showCompare.disabled = scenario === "break";
+        canvasBadge.textContent = scenario === "break" ? "УДАР ПО ТРЕУГОЛЬНИКУ" : "ПЕРЕТАЩИТЕ МЕТКУ b";
+        scaleLabel.textContent = scenario === "break" ? "РАЗЛЁТ ШАРОВ" : "ЛИНИЯ ИМПУЛЬСА";
+        if (scenario === "break") {
+          document.getElementById("modeNote").innerHTML = mode === "elastic"
+            ? "<strong>Разбой:</strong> биток разбивает треугольник из 15 шаров. При e = 1 столкновения упругие; счётчик отмечает забитые объектные шары."
+            : "<strong>Разбой:</strong> при e = 0 скорость разлёта по нормали контакта равна нулю. Это упрощённая модель без вращения и трения между шарами.";
+          document.getElementById("formulaNote").textContent = "Учитываются попарные столкновения, борта, лузы и потери скорости о сукно. Вращение и трение между шарами не моделируются.";
+        } else if (mode === "elastic") {
+          document.getElementById("modeNote").innerHTML = "<strong>Упругий удар:</strong> при e = 1 сохраняются суммарный импульс и кинетическая энергия. Смещение b меняет направление линии центров.";
+          document.getElementById("formulaNote").textContent = "В упругом ударе сохраняется и кинетическая энергия. Трение о сукно и вращение до контакта не учитываются.";
+        } else {
+          document.getElementById("modeNote").innerHTML = "<strong>Абсолютно неупругий удар:</strong> шары сцепляются. Импульс и момент импульса сохраняются, а часть энергии уходит во вращение и деформацию.";
+          document.getElementById("formulaNote").textContent = "После сцепления пара вращается, если удар смещён. Вращение до контакта, трение о сукно и потери на бортах не учитываются.";
+        }
+      }
+
+      function setMode(next) {
+        mode = next;
+        modeButtons.forEach(function (button) {
+          const active = button.dataset.mode === mode;
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+          button.setAttribute("aria-selected", active ? "true" : "false");
+        });
+        resetSimulation();
+      }
+
+      function resetSimulation() {
+        if (frameHandle) cancelAnimationFrame(frameHandle);
+        frameHandle = 0;
+        syncOffsetLimits();
+        const p = getParameters();
+        const balls = initialBalls(p);
+        preview = scenario === "break" ? null : solvePrediction(p, balls);
+        alternatePreview = scenario === "break" ? null : solvePrediction(p, balls, mode === "elastic" ? "sticky" : "elastic");
+        simulation = { balls: balls, pair: null, isBreak: scenario === "break", pottedCount: 0, initialEnergy: .5 * p.m1 * p.speed * p.speed, collided: false, collisionJustOccurred: false, impact: null, running: false, elapsed: 0, paths: balls.map(function (ball) { return [{ x: ball.x, y: ball.y }]; }), dropped: balls.map(function () { return false; }), lastTime: 0 };
+        stateLabel.textContent = scenario === "break" ? "ГОТОВ К РАЗБОЮ" : "ГОТОВ К УДАРУ";
+        stateLight.classList.remove("hit");
+        playLabel.textContent = scenario === "break" ? "РАЗБИТЬ" : "УДАРИТЬ";
+        playGlyph.textContent = "▶";
+        stepButton.disabled = false;
+        timeDisplay.textContent = "t = 0,00 с";
+        pottedCount.textContent = "0";
+        updateReadouts(p);
+        draw();
+      }
+
+      function updatePresetSelection(selected) {
+        document.querySelectorAll(".preset").forEach(function (button) {
+          const active = button === selected || (!selected && scenario === "break" && button.dataset.preset === "break");
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+      }
+
+      function setPreset(name, button) {
+        if (name === "break") {
+          scenario = "break";
+          updatePresetSelection(button);
+          resetSimulation();
+          return;
+        }
+        const presets = {
+          center: { offset: 0, m1: .17, m2: .22 },
+          grazing: { offset: 5.2, m1: .17, m2: .22 },
+          equal: { offset: .8, m1: .20, m2: .20 },
+          heavy: { offset: .8, m1: .12, m2: .40 }
+        };
+        const preset = presets[name];
+        if (!preset) return;
+        scenario = "pair";
+        offsetInput.value = preset.offset;
+        mass1Input.value = preset.m1;
+        mass2Input.value = preset.m2;
+        updatePresetSelection(button);
+        resetSimulation();
+      }
+
+      function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+
+      function clampView() {
+        const left = 18 * view.scale, right = 1182 * view.scale;
+        const top = 23 * view.scale, bottom = 627 * view.scale;
+        view.x = right - left <= W ? (W - (right - left)) / 2 - left : clamp(view.x, W - right, -left);
+        view.y = bottom - top <= H ? (H - (bottom - top)) / 2 - top : clamp(view.y, H - bottom, -top);
+      }
+
+      function zoomAt(factor, center) {
+        const anchor = center || { x: W / 2, y: H / 2 };
+        const worldX = (anchor.x - view.x) / view.scale;
+        const worldY = (anchor.y - view.y) / view.scale;
+        view.scale = clamp(view.scale * factor, .82, 2.4);
+        view.x = anchor.x - worldX * view.scale;
+        view.y = anchor.y - worldY * view.scale;
+        clampView();
+        draw();
+      }
+
+      function screenPoint(event) {
+        const rect = canvas.getBoundingClientRect();
+        return { x: (event.clientX - rect.left) / rect.width * W, y: (event.clientY - rect.top) / rect.height * H };
+      }
+
+      function toWorld(point) {
+        return { x: (point.x - view.x) / view.scale, y: (point.y - view.y) / view.scale };
+      }
+
+      function pointNearAim(point) {
+        if (!preview || !preview.geometry || simulation.collided) return false;
+        const marker = { x: preview.geometry.x * view.scale + view.x, y: preview.geometry.y * view.scale + view.y };
+        const rect = canvas.getBoundingClientRect();
+        const radius = 26 * W / rect.width;
+        return Math.hypot(point.x - marker.x, point.y - marker.y) <= radius;
+      }
+
+      function pointerDistance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+      function pointerCenter(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+
+      function updateAimFromPoint(point) {
+        const world = toWorld(point);
+        const value = clamp((world.y - targetStart.y) / pxPerCm, Number(offsetInput.min), Number(offsetInput.max));
+        offsetInput.value = (Math.round(value * 10) / 10).toFixed(1);
+        updatePresetSelection(null);
+        resetSimulation();
+      }
+
+      function handleCanvasPointerDown(event) {
+        const point = screenPoint(event);
+        pointers.set(event.pointerId, point);
+        if (canvas.setPointerCapture) canvas.setPointerCapture(event.pointerId);
+        if (pointers.size >= 2) {
+          const pair = Array.from(pointers.values());
+          gesture = { mode: "pinch", distance: Math.max(1, pointerDistance(pair[0], pair[1])), center: pointerCenter(pair[0], pair[1]), scale: view.scale, x: view.x, y: view.y };
+          event.preventDefault();
+          return;
+        }
+        if (pointNearAim(point) && !simulation.running) {
+          gesture = { mode: "aim", pointerId: event.pointerId };
+          canvas.classList.add("dragging-aim");
+          canvas.classList.remove("aim-target");
+          event.preventDefault();
+        } else if (event.pointerType === "touch") {
+          gesture = { mode: "pan", pointerId: event.pointerId, point: point, x: view.x, y: view.y };
+          event.preventDefault();
+        }
+      }
+
+      function handleCanvasPointerMove(event) {
+        const point = screenPoint(event);
+        if (pointers.has(event.pointerId)) pointers.set(event.pointerId, point);
+        if (pointers.size >= 2 && gesture && gesture.mode === "pinch") {
+          const pair = Array.from(pointers.values());
+          const center = pointerCenter(pair[0], pair[1]);
+          const factor = pointerDistance(pair[0], pair[1]) / gesture.distance;
+          const nextScale = clamp(gesture.scale * factor, .82, 2.4);
+          const worldX = (gesture.center.x - gesture.x) / gesture.scale;
+          const worldY = (gesture.center.y - gesture.y) / gesture.scale;
+          view.scale = nextScale;
+          view.x = center.x - worldX * nextScale;
+          view.y = center.y - worldY * nextScale;
+          clampView(); draw(); event.preventDefault(); return;
+        }
+        if (gesture && gesture.mode === "aim" && gesture.pointerId === event.pointerId) {
+          updateAimFromPoint(point); event.preventDefault(); return;
+        }
+        if (gesture && gesture.mode === "pan" && gesture.pointerId === event.pointerId) {
+          view.x = gesture.x + point.x - gesture.point.x;
+          view.y = gesture.y + point.y - gesture.point.y;
+          clampView(); draw(); event.preventDefault(); return;
+        }
+        if (event.pointerType === "mouse" && !gesture) canvas.classList.toggle("aim-target", pointNearAim(point));
+      }
+
+      function handleCanvasPointerUp(event) {
+        pointers.delete(event.pointerId);
+        if (pointers.size === 0) { gesture = null; canvas.classList.remove("aim-target", "dragging-aim"); return; }
+        if (pointers.size === 1) {
+          const remaining = Array.from(pointers.entries())[0];
+          gesture = { mode: "pan", pointerId: remaining[0], point: remaining[1], x: view.x, y: view.y };
+        }
+      }
+
+      function drawRoundRect(x, y, w, h, r, fill, stroke) {
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, r);
+        if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+        if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+      }
+
+      function drawTable() {
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,.7)";
+        ctx.shadowBlur = 25;
+        ctx.shadowOffsetY = 13;
+        const wood = ctx.createLinearGradient(0, 25, 1200, 630);
+        wood.addColorStop(0, "#6b3b20"); wood.addColorStop(.3, "#b97843"); wood.addColorStop(.55, "#75401f"); wood.addColorStop(.78, "#c1844c"); wood.addColorStop(1, "#4a2818");
+        drawRoundRect(18, 23, 1164, 604, 31, wood, "rgba(245,190,125,.45)");
+        ctx.restore();
+        const rail = ctx.createLinearGradient(0, 45, 0, 625);
+        rail.addColorStop(0, "#123c31"); rail.addColorStop(.5, "#0c3028"); rail.addColorStop(1, "#06221d");
+        drawRoundRect(38, 42, 1124, 566, 23, rail, "rgba(15,20,18,.9)");
+        const cloth = ctx.createRadialGradient(570, 275, 20, 600, 325, 680);
+        cloth.addColorStop(0, "#0d735c"); cloth.addColorStop(.58, "#08624f"); cloth.addColorStop(1, "#034838");
+        drawRoundRect(felt.left, felt.top, felt.right - felt.left, felt.bottom - felt.top, 3, cloth, "rgba(117,205,162,.17)");
+        ctx.save();
+        ctx.beginPath(); ctx.rect(felt.left, felt.top, felt.right - felt.left, felt.bottom - felt.top); ctx.clip();
+        for (let i = -520; i < 1500; i += 13) {
+          ctx.beginPath(); ctx.moveTo(i, felt.top); ctx.lineTo(i + 430, felt.bottom); ctx.strokeStyle = "rgba(217,255,235,.018)"; ctx.lineWidth = 1; ctx.stroke();
+        }
+        const vignette = ctx.createRadialGradient(600, 315, 80, 600, 315, 650);
+        vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,14,11,.34)");
+        ctx.fillStyle = vignette; ctx.fillRect(felt.left, felt.top, felt.right - felt.left, felt.bottom - felt.top);
+        ctx.restore();
+        ctx.strokeStyle = "rgba(234,196,145,.42)"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(59, 31); ctx.lineTo(1141, 31); ctx.moveTo(59, 619); ctx.lineTo(1141, 619); ctx.stroke();
+        const pockets = [ [58,64], [600,64], [1142,64], [58,586], [600,586], [1142,586] ];
+        pockets.forEach(function (p) {
+          ctx.beginPath(); ctx.arc(p[0], p[1], 25, 0, Math.PI * 2); ctx.fillStyle = "rgba(213,157,103,.55)"; ctx.fill();
+          ctx.beginPath(); ctx.arc(p[0], p[1], 21, 0, Math.PI * 2); const pg = ctx.createRadialGradient(p[0]-5,p[1]-7,1,p[0],p[1],22); pg.addColorStop(0,"#020706"); pg.addColorStop(.75,"#060b09"); pg.addColorStop(1,"#1c211b"); ctx.fillStyle=pg; ctx.fill();
+          ctx.beginPath(); ctx.arc(p[0], p[1], 21, 0, Math.PI * 2); ctx.strokeStyle="rgba(235,186,129,.3)"; ctx.lineWidth=1; ctx.stroke();
+        });
+        ctx.fillStyle = "rgba(242,228,194,.25)";
+        [[270,45],[930,45],[270,605],[930,605]].forEach(function(p){ctx.beginPath();ctx.arc(p[0],p[1],3,0,Math.PI*2);ctx.fill();});
+      }
+
+      function drawArrow(x1, y1, x2, y2, color, width, dashed, alpha) {
+        const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+        if (len < 2) return;
+        const ux = dx / len, uy = dy / len;
+        ctx.save(); ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width || 2; ctx.lineCap = "round";
+        if (dashed) ctx.setLineDash([10, 8]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2 - ux * 9, y2 - uy * 9); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.moveTo(x2, y2); ctx.lineTo(x2 - ux * 13 - uy * 5, y2 - uy * 13 + ux * 5); ctx.lineTo(x2 - ux * 13 + uy * 5, y2 - uy * 13 - ux * 5); ctx.closePath(); ctx.fill(); ctx.restore();
+      }
+
+      function rayEnd(x, y, vx, vy, inset) {
+        const left = felt.left + inset, right = felt.right - inset, top = felt.top + inset, bottom = felt.bottom - inset;
+        let t = Infinity;
+        if (vx > 0) t = Math.min(t, (right - x) / vx); else if (vx < 0) t = Math.min(t, (left - x) / vx);
+        if (vy > 0) t = Math.min(t, (bottom - y) / vy); else if (vy < 0) t = Math.min(t, (top - y) / vy);
+        if (!Number.isFinite(t) || t < 0) t = 0;
+        return { x: x + vx * t, y: y + vy * t };
+      }
+
+      function drawCue(ball) {
+        const gradient = ctx.createLinearGradient(ball.x - 180, ball.y, ball.x - ball.r, ball.y);
+        gradient.addColorStop(0, "#5b301c"); gradient.addColorStop(.2, "#e6bd84"); gradient.addColorStop(.75, "#c58b50"); gradient.addColorStop(.9, "#f1d29c"); gradient.addColorStop(1, "#332116");
+        ctx.save(); ctx.lineCap = "round"; ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowBlur = 8; ctx.shadowOffsetY = 5;
+        ctx.strokeStyle = gradient; ctx.lineWidth = 8; ctx.beginPath(); ctx.moveTo(ball.x - 185, ball.y + 1); ctx.lineTo(ball.x - ball.r + 1, ball.y + 1); ctx.stroke();
+        ctx.shadowBlur = 0; ctx.strokeStyle = "rgba(255,239,205,.6)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ball.x - 170, ball.y - 2); ctx.lineTo(ball.x - ball.r - 2, ball.y - 2); ctx.stroke(); ctx.restore();
+      }
+
+      function drawBall(ball, opacity) {
+        if (ball.potted) return;
+        ctx.save(); ctx.globalAlpha = opacity == null ? 1 : opacity;
+        ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 8;
+        ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(ball.x - ball.r * .36, ball.y - ball.r * .42, ball.r * .05, ball.x, ball.y, ball.r * 1.1);
+        const colors = [["#ffe879", "#e7ab20", "#714009"], ["#8bd3ff", "#1766c2", "#082a67"], ["#ff9180", "#e53628", "#490806"], ["#d2a8ff", "#7c42bd", "#32124f"], ["#ffc078", "#e87918", "#70320a"], ["#82e2a0", "#238d4d", "#0b4325"], ["#dc8888", "#8e2735", "#40101a"], ["#92968e", "#333a36", "#090d0b"]];
+        const number = ball.number || Number(ball.label) || 3;
+        if (ball.type === "cue") { grad.addColorStop(0,"#fffef6"); grad.addColorStop(.48,"#eee6d2"); grad.addColorStop(.83,"#b9aa8b"); grad.addColorStop(1,"#75654f"); }
+        else { const palette = colors[(number - 1) % colors.length]; grad.addColorStop(0,palette[0]); grad.addColorStop(.4,palette[1]); grad.addColorStop(.78,palette[1]); grad.addColorStop(1,palette[2]); }
+        ctx.fillStyle = grad; ctx.fill(); ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+        if (ball.type !== "cue" && ball.number > 8) {
+          ctx.save(); ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2); ctx.clip();
+          ctx.fillStyle = "rgba(255,250,232,.96)"; ctx.fillRect(ball.x-ball.r, ball.y-ball.r*.27, ball.r*2, ball.r*.54); ctx.restore();
+        }
+        ctx.strokeStyle = ball.type === "cue" ? "rgba(255,255,245,.78)" : "rgba(255,146,126,.68)"; ctx.lineWidth = Math.max(1,ball.r*.055); ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(ball.x-ball.r*.28,ball.y-ball.r*.47,ball.r*.24,ball.r*.11,-.45,0,Math.PI*2); ctx.fillStyle="rgba(255,255,255,.86)"; ctx.fill();
+        if (ball.type === "cue") {
+          ctx.beginPath(); ctx.arc(ball.x + ball.r*.22, ball.y + ball.r*.18, Math.max(1.5,ball.r*.075), 0, Math.PI*2); ctx.fillStyle="rgba(176,55,34,.65)"; ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawPath(points, color, dashed, alpha) {
+        if (!points || points.length < 2) return;
+        ctx.save(); ctx.globalAlpha = alpha == null ? 1 : alpha; ctx.strokeStyle = color; ctx.lineWidth = 2.4; ctx.lineJoin = "round"; ctx.lineCap = "round";
+        ctx.shadowColor = color; ctx.shadowBlur = 6; if (dashed) ctx.setLineDash([8, 8]);
+        ctx.beginPath(); ctx.moveTo(points[0].x, points[0].y);
+        for (let i=1;i<points.length;i++) ctx.lineTo(points[i].x, points[i].y);
+        ctx.stroke(); ctx.restore();
+      }
+
+      function drawPrediction() {
+        if (scenario === "break" || !preview || !simulation || !showTrails.checked) return;
+        if (!simulation.collided) drawPredictionSet(preview, ["#31c6ff", "#ff7454"], false, .92, true);
+        if (showCompare.checked && alternatePreview) drawPredictionSet(alternatePreview, ["#c5ec79", "#d3a7ff"], true, .9, false);
+      }
+
+      function drawPredictionSet(prediction, colors, dashed, alpha, incoming) {
+        if (!prediction) return;
+        const g = prediction.geometry;
+        if (incoming && simulation && !simulation.collided) {
+          const cue=simulation.balls[0];
+          drawArrow(cue.x, cue.y, g.x, g.y, colors[0], 2, true, .72);
+        }
+        const end1 = rayEnd(g.x, g.y, prediction.after1.x, prediction.after1.y, simulation.balls[0].r + 3);
+        const end2 = rayEnd(g.tx, g.ty, prediction.after2.x, prediction.after2.y, simulation.balls[1].r + 3);
+        drawArrow(g.x, g.y, end1.x, end1.y, colors[0], dashed ? 2.1 : 2.7, dashed, alpha);
+        drawArrow(g.tx, g.ty, end2.x, end2.y, colors[1], dashed ? 2.1 : 2.7, dashed, alpha);
+      }
+
+      function drawAimHandle() {
+        if (!preview || !simulation || simulation.collided || simulation.running) return;
+        const g = preview.geometry;
+        const cssScale = canvas.getBoundingClientRect().width / W * view.scale;
+        const radius = 12 / Math.max(.08, cssScale);
+        ctx.save();
+        ctx.fillStyle = "rgba(240,75,44,.28)"; ctx.strokeStyle = "rgba(255,235,218,.94)"; ctx.lineWidth = 2 / Math.max(.08, cssScale);
+        ctx.beginPath(); ctx.arc(g.x, g.y, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(g.x, g.y, 3.4 / Math.max(.08, cssScale), 0, Math.PI * 2); ctx.fillStyle = "#fff4df"; ctx.fill();
+        ctx.restore();
+      }
+
+      function drawImpactVectors() {
+        if (!simulation || !simulation.impact || !showTrails.checked) return;
+        const impact = simulation.impact;
+        const vectors = [
+          { point: impact.p1, velocity: impact.v1, color: "#31c6ff" },
+          { point: impact.p2, velocity: impact.v2, color: "#ff7454" }
+        ];
+        vectors.forEach(function (entry) {
+          const speed = vecLength(entry.velocity);
+          if (speed < 1) return;
+          const length = Math.min(145, Math.max(48, 38 + speed / scale * 25));
+          const end = { x: entry.point.x + entry.velocity.x / speed * length, y: entry.point.y + entry.velocity.y / speed * length };
+          drawArrow(entry.point.x, entry.point.y, end.x, end.y, entry.color, 3, false, .98);
+        });
+      }
+
+      function drawNormalLine() {
+        if (!showNormal.checked || !preview || !simulation || simulation.collided) return;
+        const g=preview.geometry;
+        const x1=g.x+preview.n.x*8, y1=g.y+preview.n.y*8;
+        const x2=g.tx-preview.n.x*8, y2=g.ty-preview.n.y*8;
+        ctx.save(); ctx.strokeStyle="rgba(255,255,255,.68)"; ctx.lineWidth=1.5; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc((x1+x2)/2,(y1+y2)/2,5,0,Math.PI*2); ctx.fillStyle="#ff6d4a"; ctx.fill();
+        ctx.font="700 11px system-ui"; ctx.fillStyle="rgba(255,255,255,.82)"; ctx.fillText("n",(x1+x2)/2+9,(y1+y2)/2-7); ctx.restore();
+      }
+
+      function drawTrails() {
+        if (!showTrails.checked || !simulation) return;
+        if (simulation.isBreak) {
+          const colors = ["#31c6ff", "#ff7454", "#f0d064", "#be91f2", "#70d695", "#ffa75e", "#d97a9c", "#aeb9bb"];
+          simulation.paths.forEach(function (path, index) { drawPath(path, index === 0 ? "#31c6ff" : colors[(index - 1) % colors.length], false, index === 0 ? .72 : .34); });
+        } else {
+          drawPath(simulation.paths[0], "#31c6ff", false, .64);
+          drawPath(simulation.paths[1], "#ff7454", false, .68);
+        }
+      }
+
+      function draw() {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        ctx.save();
+        ctx.translate(view.x, view.y);
+        ctx.scale(view.scale, view.scale);
+        drawTable();
+        drawTrails();
+        drawPrediction();
+        drawNormalLine();
+        if (simulation && !simulation.collided && !simulation.running) drawCue(simulation.balls[0]);
+        if (simulation && simulation.pair) {
+          const pair = simulation.pair;
+          ctx.save(); ctx.strokeStyle="rgba(255,242,207,.55)"; ctx.lineWidth=1.5; ctx.setLineDash([3,4]); ctx.beginPath(); ctx.moveTo(simulation.balls[0].x,simulation.balls[0].y); ctx.lineTo(simulation.balls[1].x,simulation.balls[1].y); ctx.stroke(); ctx.restore();
+        }
+        if (simulation) simulation.balls.forEach(function(ball){drawBall(ball);});
+        if (scenario !== "break" && simulation && !simulation.collided && preview && !simulation.running) {
+          drawAimHandle();
+        }
+        drawImpactVectors();
+        ctx.restore();
+      }
+
+      function addTrailPoint(index, ball) {
+        const path=simulation.paths[index]; const last=path[path.length-1];
+        if (!last || Math.hypot(ball.x-last.x,ball.y-last.y)>2.5) {
+          path.push({x:ball.x,y:ball.y});
+          if(path.length>720) path.shift();
+        }
+      }
+
+      function applyFriction(ball, dt) {
+        const speed=Math.hypot(ball.vx,ball.vy); if(speed<1) {ball.vx=0;ball.vy=0;return;}
+        const next=Math.max(0,speed-36*dt); const factor=next/speed; ball.vx*=factor;ball.vy*=factor;
+      }
+
+      function potIfNear(ball, index) {
+        if(ball.potted) return true;
+        const centers=[[58,64],[600,64],[1142,64],[58,586],[600,586],[1142,586]];
+        for(let i=0;i<centers.length;i++) {
+          if(Math.hypot(ball.x-centers[i][0],ball.y-centers[i][1]) < 24-ball.r*.12) {
+            markPotted(ball,index);return true;
+          }
+        }
+        return false;
+      }
+
+      function markPotted(ball,index) {
+        if(ball.potted)return;
+        ball.potted=true;ball.vx=0;ball.vy=0;simulation.dropped[index]=true;
+        if(simulation.isBreak && ball.type!=="cue") {
+          simulation.pottedCount++;
+          pottedCount.textContent=String(simulation.pottedCount);
+          updateReadouts(getParameters());
+        }
+      }
+
+      function moveFreeBall(ball,index,dt) {
+        if(ball.potted) return;
+        ball.x += ball.vx*dt; ball.y += ball.vy*dt;
+        if(potIfNear(ball,index)) return;
+        const left=felt.left+ball.r, right=felt.right-ball.r, top=felt.top+ball.r, bottom=felt.bottom-ball.r;
+        const nearTopPocket=Math.abs(ball.x-600)<29 || ball.x<felt.left+28 || ball.x>felt.right-28;
+        const nearBottomPocket=nearTopPocket;
+        if(ball.x<left) { if(ball.y<felt.top+29||ball.y>felt.bottom-29) {markPotted(ball,index);} else {ball.x=left;ball.vx=Math.abs(ball.vx)*.88;} }
+        if(ball.x>right) { if(ball.y<felt.top+29||ball.y>felt.bottom-29) {markPotted(ball,index);} else {ball.x=right;ball.vx=-Math.abs(ball.vx)*.88;} }
+        if(ball.y<top && !nearTopPocket) {ball.y=top;ball.vy=Math.abs(ball.vy)*.88;}
+        if(ball.y>bottom && !nearBottomPocket) {ball.y=bottom;ball.vy=-Math.abs(ball.vy)*.88;}
+        applyFriction(ball,dt);
+      }
+
+      function beginStickyPair(a,b,n,d) {
+        const total=a.m+b.m;
+        const vcm={x:(a.m*a.vx+b.m*b.vx)/total,y:(a.m*a.vy+b.m*b.vy)/total};
+        const center={x:(a.m*a.x+b.m*b.x)/total,y:(a.m*a.y+b.m*b.y)/total};
+        const r1={x:-b.m/total*d*n.x,y:-b.m/total*d*n.y};
+        const r2={x:a.m/total*d*n.x,y:a.m/total*d*n.y};
+        const L=a.m*cross(r1,{x:a.vx-vcm.x,y:a.vy-vcm.y})+b.m*cross(r2,{x:b.vx-vcm.x,y:b.vy-vcm.y});
+        const inertia=.5*a.m*a.r*a.r+.5*b.m*b.r*b.r+a.m*(r1.x*r1.x+r1.y*r1.y)+b.m*(r2.x*r2.x+r2.y*r2.y);
+        const pair={x:center.x,y:center.y,vx:vcm.x,vy:vcm.y,angle:Math.atan2(n.y,n.x),omega:L/inertia,r1x:r1.x,r1y:r1.y,r2x:r2.x,r2y:r2.y,inertia:inertia,L:L,elapsed:0};
+        simulation.pair=pair;
+        placePairBalls();
+      }
+
+      function placePairBalls() {
+        const pair=simulation.pair; const c=Math.cos(pair.angle),s=Math.sin(pair.angle);
+        const r1={x:pair.r1x*c-pair.r1y*s,y:pair.r1x*s+pair.r1y*c};
+        const r2={x:pair.r2x*c-pair.r2y*s,y:pair.r2x*s+pair.r2y*c};
+        simulation.balls[0].x=pair.x+r1.x; simulation.balls[0].y=pair.y+r1.y;
+        simulation.balls[1].x=pair.x+r2.x; simulation.balls[1].y=pair.y+r2.y;
+        simulation.balls[0].vx=pair.vx-pair.omega*r1.y; simulation.balls[0].vy=pair.vy+pair.omega*r1.x;
+        simulation.balls[1].vx=pair.vx-pair.omega*r2.y; simulation.balls[1].vy=pair.vy+pair.omega*r2.x;
+      }
+
+      function detectCollision() {
+        if(simulation.collided||simulation.pair) return;
+        const a=simulation.balls[0],b=simulation.balls[1];
+        if(a.potted||b.potted)return;
+        const dx=b.x-a.x,dy=b.y-a.y,distance=Math.hypot(dx,dy),sum=a.r+b.r;
+        if(distance>sum+1)return;
+        const n={x:dx/Math.max(1,distance),y:dy/Math.max(1,distance)};
+        const approach=(a.vx-b.vx)*n.x+(a.vy-b.vy)*n.y;
+        if(approach<=0)return;
+        const before1={x:a.vx,y:a.vy},before2={x:b.vx,y:b.vy};
+        simulation.collided=true;
+        simulation.collisionJustOccurred=true;
+        simulation.elapsedAtHit=simulation.elapsed;
+        const overlap=sum-distance;
+        if(overlap>0) { a.x-=n.x*overlap*b.m/(a.m+b.m);a.y-=n.y*overlap*b.m/(a.m+b.m);b.x+=n.x*overlap*a.m/(a.m+b.m);b.y+=n.y*overlap*a.m/(a.m+b.m); }
+        if(mode==="elastic") {
+          const impulse=2*approach/(1/a.m+1/b.m);
+          a.vx-=impulse*n.x/a.m;a.vy-=impulse*n.y/a.m;
+          b.vx+=impulse*n.x/b.m;b.vy+=impulse*n.y/b.m;
+        } else beginStickyPair(a,b,n,sum);
+        const after1={x:a.vx,y:a.vy},after2={x:b.vx,y:b.vy};
+        const impulseVector={x:a.m*(after1.x-before1.x)/scale,y:a.m*(after1.y-before1.y)/scale};
+        simulation.impact = {
+          p1: { x: a.x, y: a.y }, p2: { x: b.x, y: b.y },
+          v1: after1, v2: after2, before1: before1, before2: before2, after1: after1, after2: after2,
+          n: n, time: simulation.elapsed, relativeSpeed: approach/scale, impulse: vecLength(impulseVector),
+          rotationEnergy: simulation.pair ? .5*simulation.pair.inertia*simulation.pair.omega*simulation.pair.omega/(scale*scale) : 0
+        };
+        stateLabel.textContent="СТОЛКНОВЕНИЕ";
+        stateLight.classList.add("hit");
+        updateReadouts(getParameters());
+      }
+
+      function detectRackCollisions() {
+        let changed=false;
+        for(let pass=0;pass<2;pass++) {
+          for(let i=0;i<simulation.balls.length;i++) {
+            const a=simulation.balls[i]; if(a.potted)continue;
+            for(let j=i+1;j<simulation.balls.length;j++) {
+              const b=simulation.balls[j]; if(b.potted)continue;
+              const dx=b.x-a.x,dy=b.y-a.y,distance=Math.hypot(dx,dy),sum=a.r+b.r;
+              if(distance>=sum)continue;
+              const n={x:dx/Math.max(1,distance),y:dy/Math.max(1,distance)};
+              const invA=1/a.m,invB=1/b.m,totalInv=invA+invB;
+              const overlap=sum-distance+.02;
+              a.x-=n.x*overlap*invA/totalInv;a.y-=n.y*overlap*invA/totalInv;
+              b.x+=n.x*overlap*invB/totalInv;b.y+=n.y*overlap*invB/totalInv;
+              const approach=(a.vx-b.vx)*n.x+(a.vy-b.vy)*n.y;
+              if(approach<=.05)continue;
+              const restitution=mode==="elastic"?1:0;
+              const impulse=(1+restitution)*approach/totalInv;
+              a.vx-=impulse*n.x*invA;a.vy-=impulse*n.y*invA;
+              b.vx+=impulse*n.x*invB;b.vy+=impulse*n.y*invB;
+              simulation.collided=true;simulation.collisionJustOccurred=true;changed=true;
+            }
+          }
+        }
+        if(changed) {
+          stateLabel.textContent="РАЗБОЙ · СТОЛКНОВЕНИЕ";
+          stateLight.classList.add("hit");
+        }
+      }
+
+      function movePair(dt) {
+        const pair=simulation.pair;
+        pair.x+=pair.vx*dt;pair.y+=pair.vy*dt;pair.angle+=pair.omega*dt;pair.elapsed+=dt;
+        const totalSpeed=Math.hypot(pair.vx,pair.vy);
+        if(totalSpeed>0) {const next=Math.max(0,totalSpeed-36*dt),f=next/totalSpeed;pair.vx*=f;pair.vy*=f;}
+        const bounds=Math.max(simulation.balls[0].r+Math.hypot(pair.r1x,pair.r1y),simulation.balls[1].r+Math.hypot(pair.r2x,pair.r2y));
+        const left=felt.left+bounds,right=felt.right-bounds,top=felt.top+bounds,bottom=felt.bottom-bounds;
+        if(pair.x<left){pair.x=left;pair.vx=Math.abs(pair.vx)*.86;}
+        if(pair.x>right){pair.x=right;pair.vx=-Math.abs(pair.vx)*.86;}
+        if(pair.y<top){pair.y=top;pair.vy=Math.abs(pair.vy)*.86;}
+        if(pair.y>bottom){pair.y=bottom;pair.vy=-Math.abs(pair.vy)*.86;}
+        placePairBalls();
+      }
+
+      function integrate(dt) {
+        simulation.elapsed+=dt;
+        if(simulation.isBreak) {
+          simulation.balls.forEach(function(ball,index){moveFreeBall(ball,index,dt);});
+          detectRackCollisions();
+          simulation.balls.forEach(function(ball,index){addTrailPoint(index,ball);});
+        } else if(simulation.pair) {
+          movePair(dt);addTrailPoint(0,simulation.balls[0]);addTrailPoint(1,simulation.balls[1]);
+        } else {
+          moveFreeBall(simulation.balls[0],0,dt);moveFreeBall(simulation.balls[1],1,dt);detectCollision();
+          addTrailPoint(0,simulation.balls[0]);addTrailPoint(1,simulation.balls[1]);
+          if(simulation.pair) {addTrailPoint(0,simulation.balls[0]);addTrailPoint(1,simulation.balls[1]);}
+        }
+      }
+
+      function animationStep(now) {
+        if(!simulation||!simulation.running)return;
+        let dt=Math.min(.04,Math.max(0,(now-simulation.lastTime)/1000));
+        simulation.lastTime=now;
+        const sub=dt/8;
+        for(let i=0;i<8;i++) {
+          integrate(sub);
+          if(simulation.collisionJustOccurred) simulation.collisionJustOccurred=false;
+        }
+        timeDisplay.textContent="t = "+fmt(simulation.elapsed,2)+" с";
+        if(simulation.isBreak) updateReadouts(getParameters());
+        draw();
+        const speed=simulation.pair?Math.hypot(simulation.pair.vx,simulation.pair.vy):simulation.balls.reduce(function(sum,b){return sum+Math.hypot(b.vx,b.vy);},0);
+        if(speed<9) {
+          simulation.running=false;playLabel.textContent="ПОВТОРИТЬ";playGlyph.textContent="↻";
+          stateLabel.textContent=simulation.isBreak?"РАЗБОЙ ЗАВЕРШЁН · "+simulation.pottedCount+" ЗАБИТО":simulation.collided?"УДАР ЗАВЕРШЁН":"ОСТАНОВКА";
+          stepButton.disabled=false;
+          frameHandle=0;return;
+        }
+        stateLabel.textContent=simulation.isBreak?"РАЗБОЙ В ХОДЕ":simulation.collided?"ПОСЛЕ УДАРА":"УДАР В ХОДЕ";
+        frameHandle=requestAnimationFrame(animationStep);
+      }
+
+      function toggleRun() {
+        if(!simulation)return;
+        if(simulation.running) {
+          simulation.running=false;if(frameHandle)cancelAnimationFrame(frameHandle);frameHandle=0;
+          playLabel.textContent="ПРОДОЛЖИТЬ";playGlyph.textContent="▶";stateLabel.textContent="ПАУЗА";stepButton.disabled=false;return;
+        }
+        const speedNow=simulation.pair?Math.hypot(simulation.pair.vx,simulation.pair.vy):simulation.balls.reduce(function(sum,b){return sum+Math.hypot(b.vx,b.vy);},0);
+        if(simulation.elapsed>0&&speedNow<9)resetSimulation();
+        if(simulation.elapsed===0&&!simulation.collided) {
+          stateLabel.textContent=scenario==="break"?"РАЗБОЙ В ХОДЕ":"УДАР В ХОДЕ";stateLight.classList.add("hit");
+        } else stateLabel.textContent=simulation.collided?"СТОЛКНОВЕНИЕ":"ДВИЖЕНИЕ";
+        simulation.running=true;simulation.lastTime=performance.now();playLabel.textContent="ПАУЗА";playGlyph.textContent="Ⅱ";
+        stepButton.disabled=true;
+        frameHandle=requestAnimationFrame(animationStep);
+      }
+
+      function stepSimulation() {
+        if (!simulation || simulation.running) return;
+        const speedNow=simulation.pair?Math.hypot(simulation.pair.vx,simulation.pair.vy):simulation.balls.reduce(function(sum,b){return sum+Math.hypot(b.vx,b.vy);},0);
+        if(simulation.elapsed>0&&speedNow<9)resetSimulation();
+        let hit=false;
+        for(let i=0;i<8;i++) {
+          integrate(1/240);
+          if(simulation.collisionJustOccurred) {simulation.collisionJustOccurred=false;hit=true;break;}
+        }
+        if(hit) {
+          playLabel.textContent="ПРОДОЛЖИТЬ";playGlyph.textContent="▶";stateLabel.textContent="ПАУЗА У СТОЛКНОВЕНИЯ";stateLight.classList.add("hit");
+        } else stateLabel.textContent=simulation.isBreak?"РАЗБОЙ · ШАГ":simulation.collided?"ПОСЛЕ УДАРА · ШАГ":"ПОШАГОВОЕ ДВИЖЕНИЕ";
+        if(!hit) {playLabel.textContent=simulation.elapsed>0?"ПРОДОЛЖИТЬ":"УДАРИТЬ";playGlyph.textContent="▶";}
+        timeDisplay.textContent="t = "+fmt(simulation.elapsed,2)+" с";
+        updateReadouts(getParameters());draw();
+      }
+
+      modeButtons.forEach(function(button){button.addEventListener("click",function(){setMode(button.dataset.mode);});});
+      [speedInput,offsetInput,mass1Input,mass2Input].forEach(function(input){input.addEventListener("input",function(){updatePresetSelection(null);resetSimulation();});});
+      document.querySelectorAll(".preset").forEach(function(button){button.addEventListener("click",function(){setPreset(button.dataset.preset,button);});});
+      [showTrails,showNormal].forEach(function(input){input.addEventListener("change",draw);});
+      showCompare.addEventListener("change",function(){updateReadouts(getParameters());draw();});
+      playButton.addEventListener("click",toggleRun);
+      stepButton.addEventListener("click",stepSimulation);
+      document.getElementById("resetButton").addEventListener("click",resetSimulation);
+      document.getElementById("zoomIn").addEventListener("click",function(){zoomAt(1.22);});
+      document.getElementById("zoomOut").addEventListener("click",function(){zoomAt(1/1.22);});
+      document.getElementById("zoomFit").addEventListener("click",function(){view={scale:1,x:0,y:0};draw();});
+      canvas.addEventListener("pointerdown",handleCanvasPointerDown);
+      canvas.addEventListener("pointermove",handleCanvasPointerMove);
+      canvas.addEventListener("pointerup",handleCanvasPointerUp);
+      canvas.addEventListener("pointercancel",handleCanvasPointerUp);
+      canvas.addEventListener("lostpointercapture",handleCanvasPointerUp);
+      resetSimulation();
+    }());
+
+</script>
+</body>
+</html>
+
+
