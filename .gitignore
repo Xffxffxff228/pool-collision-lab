@@ -1,0 +1,7 @@
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Local host launcher requires companion files outside this repository.
+start-pool-host.cmd
+
