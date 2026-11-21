@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+  <title id="title">Pool Collision Lab</title>
+  <desc id="desc">Бильярдный стол с траекториями шаров на тёмно-зелёном фоне</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#17211d"/>
+      <stop offset="1" stop-color="#090d0c"/>
+    </linearGradient>
+    <linearGradient id="felt" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#087158"/>
+      <stop offset="1" stop-color="#064637"/>
+    </linearGradient>
+    <radialGradient id="shine" cx="50%" cy="35%" r="75%">
+      <stop stop-color="#fff" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-.2" y="-.2" width="1.4" height="1.5">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="460" rx="26" fill="url(#bg)"/>
+  <circle cx="1040" cy="80" r="260" fill="#f04b2c" opacity=".06"/>
+  <circle cx="160" cy="420" r="270" fill="#12a47a" opacity=".08"/>
+  <g filter="url(#shadow)">
+    <rect x="560" y="55" width="585" height="350" rx="26" fill="#32241c" stroke="#9a6040" stroke-width="3"/>
+    <rect x="581" y="76" width="543" height="308" rx="14" fill="url(#felt)" stroke="#b17b53" stroke-width="3"/>
+    <rect x="581" y="76" width="543" height="308" rx="14" fill="url(#shine)"/>
+    <g fill="#090c0b" stroke="#d3a274" stroke-width="2">
+      <circle cx="591" cy="86" r="13"/><circle cx="852" cy="83" r="13"/><circle cx="1114" cy="86" r="13"/>
+      <circle cx="591" cy="374" r="13"/><circle cx="852" cy="377" r="13"/><circle cx="1114" cy="374" r="13"/>
+    </g>
+    <path d="M650 232H845" fill="none" stroke="#f6e8c8" stroke-opacity=".72" stroke-width="2" stroke-dasharray="8 9"/>
+    <path d="M648 232L846 158M648 232L846 306" fill="none" stroke="#ff7952" stroke-opacity=".9" stroke-width="3"/>
+    <path d="M648 232H845" fill="none" stroke="#d9fbef" stroke-opacity=".75" stroke-width="2"/>
+    <g>
+      <circle cx="652" cy="232" r="23" fill="#f4f1e9"/>
+      <circle cx="652" cy="225" r="9" fill="#fff" opacity=".72"/>
+      <circle cx="844" cy="158" r="23" fill="#f04b2c"/>
+      <circle cx="837" cy="151" r="8" fill="#ffc6b2" opacity=".72"/>
+      <circle cx="844" cy="306" r="23" fill="#31c6ff"/>
+      <circle cx="837" cy="299" r="8" fill="#c4f1ff" opacity=".72"/>
+      <circle cx="940" cy="232" r="23" fill="#f6f0e5"/>
+      <path d="M919 232a21 21 0 0 0 42 0" fill="#f04b2c"/>
+      <circle cx="919" cy="225" r="7" fill="#fff" opacity=".8"/>
+    </g>
+    <g fill="#d6c2a8" opacity=".8">
+      <circle cx="678" cy="65" r="2.5"/><circle cx="740" cy="65" r="2.5"/><circle cx="801" cy="65" r="2.5"/>
+      <circle cx="903" cy="65" r="2.5"/><circle cx="964" cy="65" r="2.5"/><circle cx="1026" cy="65" r="2.5"/>
+      <circle cx="678" cy="395" r="2.5"/><circle cx="740" cy="395" r="2.5"/><circle cx="801" cy="395" r="2.5"/>
+      <circle cx="903" cy="395" r="2.5"/><circle cx="964" cy="395" r="2.5"/><circle cx="1026" cy="395" r="2.5"/>
+    </g>
+  </g>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="70" y="115" fill="#ff7952" font-size="16" font-weight="800" letter-spacing="5">ИНТЕРАКТИВНАЯ ФИЗИКА</text>
+    <text x="66" y="207" fill="#f4f1e9" font-size="57" font-weight="900" letter-spacing="-2">POOL COLLISION</text>
+    <text x="66" y="274" fill="#f04b2c" font-size="66" font-weight="900" letter-spacing="-2">LAB</text>
+    <path d="M70 307H380" stroke="#f04b2c" stroke-width="3"/>
+    <text x="70" y="351" fill="#c3cbc4" font-size="19">Упругие удары · импульс · движение шаров</text>
+    <text x="70" y="384" fill="#7f8d84" font-size="14" font-weight="700" letter-spacing="2">ИССЛЕДУЙТЕ КАЖДЫЙ УДАР</text>
+  </g>
+</svg>
+
